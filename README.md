@@ -60,7 +60,7 @@ Ensure Docker Desktop or Docker Engine is running, then execute:
 docker compose up --build
 ```
 
-- Application will be live at: `http://localhost:8080`
+- Application will be live at: `http://localhost:8085`
 - MySQL will be listening on: `localhost:3306`
 
 To shut down:
@@ -82,8 +82,8 @@ The project includes an in-memory **H2 Database** profile enabled by default for
 .\mvnw.cmd spring-boot:run
 ```
 
-- Application will be live at: `http://localhost:8080`
-- Built-in H2 Web Console: `http://localhost:8080/h2-console`
+- Application will be live at: `http://localhost:8085`
+- Built-in H2 Web Console: `http://localhost:8085/h2-console`
   - JDBC URL: `jdbc:h2:mem:universitydb`
   - Username: `sa`
   - Password: `password`

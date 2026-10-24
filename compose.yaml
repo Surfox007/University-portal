@@ -33,7 +33,7 @@ services:
       mysql:
         condition: service_healthy
     ports:
-      - "8080:8080"
+      - "8085:8085"
     environment:
       SPRING_PROFILES_ACTIVE: docker
       DB_HOST: mysql
@@ -41,7 +41,7 @@ services:
       DB_NAME: university_db
       DB_USER: portal_user
       DB_PASSWORD: portal_pass
-      SERVER_PORT: 8080
+      SERVER_PORT: 8085
     networks:
       - university_network
 
