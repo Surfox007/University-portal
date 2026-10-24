@@ -1,0 +1,53 @@
+services:
+  # MySQL Database Service
+  mysql:
+    image: mysql:8.0
+    container_name: university-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: university_db
+      MYSQL_USER: portal_user
+      MYSQL_PASSWORD: portal_pass
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u portal_user -pportal_pass || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - university_network
+
+  # University Management System Spring Boot App
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: university-portal-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: university_db
+      DB_USER: portal_user
+      DB_PASSWORD: portal_pass
+      SERVER_PORT: 8080
+    networks:
+      - university_network
+
+volumes:
+  mysql_data:
+
+networks:
+  university_network:
+    driver: bridge
