@@ -59,8 +59,8 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
-                        .requestMatchers("/api/auth/login", "/api/auth/logout", "/error", "/h2-console/**").permitAll()
+                        // Public endpoints and static frontend assets
+                        .requestMatchers("/", "/index.html", "/favicon.ico", "/css/**", "/js/**", "/api/auth/login", "/api/auth/logout", "/error", "/h2-console/**").permitAll()
 
                         // Admin resource: Only ADMIN role can access
                         .requestMatchers("/api/admins/**").hasRole("ADMIN")
