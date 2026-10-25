@@ -36,8 +36,8 @@ COPY --from=builder /build/target/university-portal-1.0.0.jar app.jar
 RUN chown -R appuser:appgroup /app
 USER appuser
 
-# Expose Spring Boot default port
-EXPOSE 8080
+# Expose Spring Boot port
+EXPOSE 8085
 
 # Environment variables with sensible defaults
 ENV SPRING_PROFILES_ACTIVE=docker \
