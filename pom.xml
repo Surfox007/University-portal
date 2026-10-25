@@ -61,6 +61,16 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Thymeleaf for Java Web Frontend -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.thymeleaf.extras</groupId>
+            <artifactId>thymeleaf-extras-springsecurity6</artifactId>
+        </dependency>
+
         <!-- JJWT for JWT Authentication -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>

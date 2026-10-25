@@ -29,13 +29,16 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final CustomAuthenticationSuccessHandler authenticationSuccessHandler;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
                           JwtAuthenticationEntryPoint authenticationEntryPoint,
-                          CustomAccessDeniedHandler accessDeniedHandler) {
+                          CustomAccessDeniedHandler accessDeniedHandler,
+                          CustomAuthenticationSuccessHandler authenticationSuccessHandler) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.accessDeniedHandler = accessDeniedHandler;
+        this.authenticationSuccessHandler = authenticationSuccessHandler;
     }
 
     @Bean
@@ -53,33 +56,60 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints and static frontend assets
-                        .requestMatchers("/", "/index.html", "/favicon.ico", "/css/**", "/js/**", "/api/auth/login", "/api/auth/logout", "/error", "/h2-console/**").permitAll()
+                        // Public Web pages & static assets
+                        .requestMatchers(
+                                "/",
+                                "/login",
+                                "/access-denied",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/favicon.ico",
+                                "/error",
+                                "/h2-console/**",
+                                "/api/auth/login",
+                                "/api/auth/logout"
+                        ).permitAll()
 
-                        // Admin resource: Only ADMIN role can access
+                        // Role-specific Web Dashboards
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/teacher/**").hasRole("TEACHER")
+                        .requestMatchers("/student/**").hasRole("STUDENT")
+
+                        // REST API Role-Based Access Control
                         .requestMatchers("/api/admins/**").hasRole("ADMIN")
-
-                        // Teacher resource: ADMIN and TEACHER roles can access
                         .requestMatchers("/api/teachers/**").hasAnyRole("ADMIN", "TEACHER")
-
-                        // Student resource: ADMIN and STUDENT roles can access
                         .requestMatchers("/api/students/**").hasAnyRole("ADMIN", "STUDENT")
 
-                        // Any other request must be authenticated
+                        // Everything else requires authentication
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults()); // Also support HTTP Basic for testing convenience
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .successHandler(authenticationSuccessHandler)
+                        .failureUrl("/login?error=true")
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout=true")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll()
+                )
+                .httpBasic(Customizer.withDefaults());
 
-        // Add our custom JWT filter before the standard UsernamePasswordAuthenticationFilter
+        // Attach custom JWT filter for REST API client token support
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        // Required if H2 console is accessed
+        // Frame options for H2 console
         http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
 
         return http.build();

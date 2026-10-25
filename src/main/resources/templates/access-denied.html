@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>403 Forbidden | Access Restricted</title>
+  <link rel="stylesheet" th:href="@{/css/portal.css}">
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="portal-header">
+    <div class="portal-header-top">
+      <div class="portal-brand">
+        <div class="portal-seal">🎓</div>
+        <div>
+          <div class="portal-name">METROPOLITAN UNIVERSITY</div>
+          <div class="portal-sub">Central Security &amp; Access Control</div>
+        </div>
+      </div>
+      <div class="portal-user-meta">
+        <span class="user-tag" th:if="${username}">Logged in as: <strong th:text="${username}">user</strong></span>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+          <button type="submit" class="btn btn-outline btn-sm" style="color:#ffffff; border-color:rgba(255,255,255,0.3); background:transparent;">Sign Out</button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <main class="portal-container">
+    <div class="access-denied-wrap">
+      <div class="access-denied-code">403</div>
+      <h2 style="font-size: 1.5rem; color: var(--primary-navy); margin-bottom: 8px;">Access Denied: Clearance Required</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">
+        Your authenticated university role does not possess authorization to access this dashboard or resource per CSE 3230 Role-Based Access Control policies.
+      </p>
+
+      <div class="portal-alert portal-alert-danger" style="text-align: left; display: inline-flex;">
+        <span>🔒 <strong>Policy Boundary:</strong> Admins can manage all three resources, Teachers manage only Teachers, and Students manage only Students.</span>
+      </div>
+
+      <div style="margin-top: 24px;">
+        <a th:href="@{/}" class="btn btn-primary" style="padding: 10px 20px;">
+          &larr; Return to Your Authorized Portal
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="portal-footer">
+    &copy; 2026 Metropolitan University &bull; Institutional Security Enforcement
+  </footer>
+</body>
+</html>

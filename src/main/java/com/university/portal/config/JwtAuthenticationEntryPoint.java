@@ -26,10 +26,16 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        String uri = request.getRequestURI();
+        String accept = request.getHeader("Accept");
 
-        ApiResponse<Void> apiResponse = ApiResponse.error("Unauthorized: " + authException.getMessage());
-        response.getOutputStream().println(objectMapper.writeValueAsString(apiResponse));
+        if (uri.startsWith("/api/") || (accept != null && accept.contains(MediaType.APPLICATION_JSON_VALUE))) {
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            ApiResponse<Void> apiResponse = ApiResponse.error("Unauthorized: " + authException.getMessage());
+            response.getOutputStream().println(objectMapper.writeValueAsString(apiResponse));
+        } else {
+            response.sendRedirect("/login");
+        }
     }
 }

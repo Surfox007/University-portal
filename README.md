@@ -220,36 +220,54 @@ Authorization: Bearer <YOUR_JWT_TOKEN>
 
 ---
 
+## 🏛️ Interactive Academic Web Portal (Thymeleaf & Spring MVC)
+
+In addition to the REST API, the application features an authentic university web portal designed using classic academic **Navy Blue (`#0F2B5C`) & White (`#FFFFFF`)** styling:
+
+### Portal URLs & Flow:
+- **Dedicated Login Page**: `http://localhost:8085/login`
+  - Includes quick 1-click test credential fill buttons for **Admin**, **Teacher**, and **Student**.
+- **Administrator Dashboard**: `http://localhost:8085/admin/dashboard`
+  - Full system metrics, directory management for Students, Faculty, and Administrators with interactive Create, Edit, and Delete modals.
+- **Faculty Dashboard**: `http://localhost:8085/teacher/dashboard`
+  - Faculty directory, department rosters, colleague registration, and profile editing.
+- **Student Academic Dashboard**: `http://localhost:8085/student/dashboard`
+  - Student academic transcript, enrolled courses, CGPA tracking, student directory, and profile editing.
+- **Access Denied Page**: `http://localhost:8085/access-denied`
+  - Clear university institutional security page displayed when a user attempts to navigate outside their authorized role.
+
+---
+
 ## ⚡ Quick cURL Verification Commands
 
 ### Step 1: Login as Student & Obtain Token
 ```bash
-curl -X POST http://localhost:8080/api/auth/login \
+curl -X POST http://localhost:8085/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"student","password":"student123"}'
 ```
 
 ### Step 2: Access Student Resources as Student (Allowed ✅ -> 200 OK)
 ```bash
-curl -X GET http://localhost:8080/api/students \
+curl -X GET http://localhost:8085/api/students \
   -H "Authorization: Bearer <STUDENT_TOKEN>"
 ```
 
 ### Step 3: Access Admin Resources as Student (Blocked 🚫 -> 403 Forbidden)
 ```bash
-curl -X GET http://localhost:8080/api/admins \
+curl -X GET http://localhost:8085/api/admins \
   -H "Authorization: Bearer <STUDENT_TOKEN>"
 ```
 
 ### Step 4: Login as Admin & Access All Resources (Allowed ✅ -> 200 OK)
 ```bash
 # Get Admin Token
-curl -X POST http://localhost:8080/api/auth/login \
+curl -X POST http://localhost:8085/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"admin123"}'
 
 # Access Admins, Teachers, and Students using Admin Token:
-curl -X GET http://localhost:8080/api/admins -H "Authorization: Bearer <ADMIN_TOKEN>"
-curl -X GET http://localhost:8080/api/teachers -H "Authorization: Bearer <ADMIN_TOKEN>"
-curl -X GET http://localhost:8080/api/students -H "Authorization: Bearer <ADMIN_TOKEN>"
+curl -X GET http://localhost:8085/api/admins -H "Authorization: Bearer <ADMIN_TOKEN>"
+curl -X GET http://localhost:8085/api/teachers -H "Authorization: Bearer <ADMIN_TOKEN>"
+curl -X GET http://localhost:8085/api/students -H "Authorization: Bearer <ADMIN_TOKEN>"
 ```

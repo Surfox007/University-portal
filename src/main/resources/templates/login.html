@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academic Portal Login | University Management System</title>
+  <link rel="stylesheet" th:href="@{/css/portal.css}">
+</head>
+<body class="login-wrap">
+
+  <!-- Institutional Top Header -->
+  <header class="login-header">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <div class="portal-seal" style="border:none; background:#ffffff; color:#0F2B5C; width:52px; height:52px; font-size:1.6rem;">🎓</div>
+      <div style="text-align: left;">
+        <h1 style="font-size: 1.5rem; font-weight: 700; letter-spacing: -0.3px;">METROPOLITAN UNIVERSITY</h1>
+        <p style="font-size: 0.85rem; color: #BFDBFE;">Academic Management Information System &bull; CSE 3230</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Login Form Box -->
+  <main style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px;">
+    <div class="login-card">
+      <h2 class="login-card-title">Sign In to Your Account</h2>
+      <p class="login-card-sub">Enter your authorized university credentials</p>
+
+      <!-- Error / Logout Alerts -->
+      <div th:if="${errorMessage}" class="portal-alert portal-alert-danger">
+        <span style="font-size: 1.1rem;">⚠️</span>
+        <span th:text="${errorMessage}">Invalid credentials.</span>
+      </div>
+
+      <div th:if="${logoutMessage}" class="portal-alert portal-alert-info">
+        <span style="font-size: 1.1rem;">ℹ️</span>
+        <span th:text="${logoutMessage}">You have logged out.</span>
+      </div>
+
+      <!-- Spring Security Form Login -->
+      <form th:action="@{/login}" method="post">
+        <div class="form-group">
+          <label class="form-label" for="username">University ID / Username</label>
+          <input type="text" id="username" name="username" class="form-input" placeholder="e.g. admin, teacher, or student" required autofocus>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit" class="btn btn-navy" style="width: 100%; padding: 11px; font-weight: 600; margin-top: 8px;">
+          Authenticate &amp; Open Dashboard &rarr;
+        </button>
+      </form>
+
+      <!-- Quick Role Autofill Box for Lab Evaluation -->
+      <div class="demo-credentials-box">
+        <h4>Demo Accounts (Click to Autofill)</h4>
+        <div class="demo-row">
+          <div>
+            <strong>Administrator</strong>: <code>admin</code> / <code>admin123</code>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" onclick="autofill('admin', 'admin123')">Fill</button>
+        </div>
+        <div class="demo-row">
+          <div>
+            <strong>Faculty (Teacher)</strong>: <code>teacher</code> / <code>teacher123</code>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" onclick="autofill('teacher', 'teacher123')">Fill</button>
+        </div>
+        <div class="demo-row">
+          <div>
+            <strong>Student</strong>: <code>student</code> / <code>student123</code>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" onclick="autofill('student', 'student123')">Fill</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer style="text-align: center; color: #94A3B8; font-size: 0.78rem; padding: 18px;">
+    &copy; 2026 Metropolitan University. CSE 3230 Lab Project &bull; Spring Boot &amp; Spring Security RBAC.
+  </footer>
+
+  <script>
+    function autofill(u, p) {
+      document.getElementById('username').value = u;
+      document.getElementById('password').value = p;
+    }
+  </script>
+</body>
+</html>

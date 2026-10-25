@@ -26,10 +26,16 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request,
                        HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        String uri = request.getRequestURI();
+        String accept = request.getHeader("Accept");
 
-        ApiResponse<Void> apiResponse = ApiResponse.error("Forbidden: You do not have permission to access this resource");
-        response.getOutputStream().println(objectMapper.writeValueAsString(apiResponse));
+        if (uri.startsWith("/api/") || (accept != null && accept.contains(MediaType.APPLICATION_JSON_VALUE))) {
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            ApiResponse<Void> apiResponse = ApiResponse.error("Forbidden: You do not have permission to access this resource");
+            response.getOutputStream().println(objectMapper.writeValueAsString(apiResponse));
+        } else {
+            response.sendRedirect("/access-denied");
+        }
     }
 }
