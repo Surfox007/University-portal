@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Portal | Metropolitan University</title>
+  <title>Student Academic Portal | Metropolitan University</title>
   <link rel="stylesheet" th:href="@{/css/portal.css}">
 </head>
 <body>
 
-  <!-- Top Institutional Header -->
+  <!-- Top Academic Navigation Bar -->
   <header class="portal-header">
     <div class="portal-header-top">
       <div class="portal-brand">
@@ -18,161 +18,298 @@
           <div class="portal-sub">Student Academic Information System</div>
         </div>
       </div>
-      <div class="portal-user-meta">
-        <span class="user-tag">
-          Enrolled Student: <strong th:text="${currentStudent != null ? currentStudent.fullName : username}">Ada Lovelace</strong>
-          <span class="badge-role badge-role-student">ROLE_STUDENT</span>
-        </span>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-          <button type="submit" class="btn btn-outline btn-sm" style="color:#ffffff; border-color:rgba(255,255,255,0.3); background:transparent;">Sign Out</button>
+
+      <div class="user-profile-badge">
+        <div class="user-avatar" th:text="${currentStudent != null ? #strings.substring(currentStudent.fullName, 0, 1) : 'S'}">S</div>
+        <div class="user-meta">
+          <div class="user-name" th:text="${currentStudent != null ? currentStudent.fullName : username}">Ada Lovelace</div>
+          <div class="user-role-text">
+            <span class="badge-role badge-role-student">Student</span>
+            <span style="color: #BFDBFE; font-size:0.75rem;" th:if="${currentStudent != null}" th:text="'(' + ${currentStudent.studentId} + ')'">(STU-2024-001)</span>
+          </div>
+        </div>
+        <form th:action="@{/logout}" method="post" style="display:inline; margin-left: 12px;">
+          <button type="submit" class="btn btn-outline btn-sm" style="border-color: rgba(255,255,255,0.4); color:#FFFFFF;">Logout</button>
         </form>
       </div>
     </div>
+
+    <nav class="portal-nav">
+      <div class="portal-nav-inner">
+        <a href="#overview" class="nav-link active">Academic Overview</a>
+        <a href="#notices" class="nav-link">Campus Notices</a>
+        <a href="#courses" class="nav-link">Enrolled Courses</a>
+        <a href="#directory" class="nav-link">Student Directory</a>
+      </div>
+    </nav>
   </header>
 
-  <!-- Secondary Nav -->
-  <nav class="portal-nav">
-    <div class="portal-nav-inner">
-      <div class="nav-links">
-        <a href="#academicProfile" class="nav-link active">🎓 Academic Profile</a>
-        <a href="#studentDirectory" class="nav-link">👥 Peer Directory</a>
-        <a href="#clearanceNotice" class="nav-link">🔒 RBAC Clearance Notice</a>
-      </div>
-      <div style="font-size: 0.8rem; color: var(--text-muted);">
-        Clearance Level: <strong>Student Resources Only</strong>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Main Container -->
   <main class="portal-container">
 
-    <!-- Flash Messages -->
+    <!-- Flash Feedback Messages -->
     <div th:if="${successMessage}" class="portal-alert portal-alert-success">
-      <span>✅</span>
-      <span th:text="${successMessage}">Operation completed successfully.</span>
+      <span>✓</span> <span th:text="${successMessage}">Operation completed successfully.</span>
     </div>
     <div th:if="${errorMessage}" class="portal-alert portal-alert-danger">
-      <span>⚠️</span>
-      <span th:text="${errorMessage}">An error occurred.</span>
+      <span>⚠️</span> <span th:text="${errorMessage}">An error occurred.</span>
     </div>
 
-    <!-- Page Title -->
-    <div class="page-header">
+    <!-- 1. ACADEMIC OVERVIEW -->
+    <section id="overview" class="page-header">
       <div class="breadcrumb">
-        <span>Academic Portal</span> &rsaquo; <span>Student Workspace</span>
+        <span>Home</span> &rsaquo; <span>Student Portal</span> &rsaquo; <span>Academic Record</span>
       </div>
-      <h1 class="page-title">Student Academic Dashboard</h1>
-      <p class="page-desc">Academic profile records, enrollment verification, and peer student directory.</p>
-    </div>
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h1 class="page-title" th:text="'Welcome back, ' + ${currentStudent != null ? currentStudent.fullName : username}">Welcome, Student</h1>
+          <p class="page-desc">Spring 2026 Academic Term &bull; Undergraduate Degree Program</p>
+        </div>
+        <div>
+          <button th:if="${currentStudent != null}" class="btn btn-primary"
+                  th:data-id="${currentStudent.id}"
+                  th:data-code="${currentStudent.studentId}"
+                  th:data-name="${currentStudent.fullName}"
+                  th:data-email="${currentStudent.email}"
+                  th:data-dept="${currentStudent.department}"
+                  th:data-semester="${currentStudent.semester}"
+                  th:data-cgpa="${currentStudent.cgpa}"
+                  th:data-phone="${currentStudent.phoneNumber}"
+                  onclick="openEditStudentModalFromData(this)">
+            Update My Profile
+          </button>
+        </div>
+      </div>
+    </section>
 
-    <!-- Student Academic Record Card -->
-    <div class="card" id="academicProfile" style="border-left: 4px solid var(--success);">
-      <div class="card-header">
-        <h3 class="card-title">Official Academic Profile</h3>
-        <span class="badge-role badge-role-student">ENROLLED REGULAR</span>
+    <!-- Student Academic Summary Cards -->
+    <div class="card" style="margin-bottom: 28px;" th:if="${currentStudent != null}">
+      <div class="card-header" style="background:#F8FAFC;">
+        <h3 class="card-title">Personal Academic Profile</h3>
+        <span class="badge-role badge-role-student" style="font-size:0.8rem;">Enrolled (Active)</span>
       </div>
       <div class="card-body">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
           <div>
-            <div class="stat-label">Student ID / Roll</div>
-            <div style="font-size: 1.15rem; font-weight: 700; color: var(--primary-navy); margin-top: 4px;">
-              <span class="code-tag" th:text="${currentStudent != null ? currentStudent.studentId : 'STU-2024-001'}">STU-2024-001</span>
-            </div>
+            <div style="font-size:0.78rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Student ID</div>
+            <div style="font-size:1.15rem; font-weight:700; color:var(--primary-navy);" th:text="${currentStudent.studentId}">STU-2024-001</div>
           </div>
           <div>
-            <div class="stat-label">Full Name</div>
-            <div style="font-size: 1.1rem; font-weight: 600; color: var(--text-main); margin-top: 4px;"
-                 th:text="${currentStudent != null ? currentStudent.fullName : username}">Ada Lovelace</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Academic Department</div>
+            <div style="font-size:1rem; font-weight:600; color:var(--text-main);" th:text="${currentStudent.department}">Computer Science &amp; Engineering</div>
           </div>
           <div>
-            <div class="stat-label">Department</div>
-            <div style="font-size: 1rem; color: var(--text-main); margin-top: 4px;"
-                 th:text="${currentStudent != null ? currentStudent.department : 'Computer Science & Engineering'}">Computer Science</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Current Semester</div>
+            <div style="font-size:1rem; font-weight:600; color:var(--text-main);" th:text="${currentStudent.semester}">4th Semester</div>
           </div>
           <div>
-            <div class="stat-label">Current Semester</div>
-            <div style="font-size: 1rem; color: var(--primary-navy); font-weight: 600; margin-top: 4px;"
-                 th:text="${currentStudent != null ? currentStudent.semester : '4th Semester'}">4th Semester</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Cumulative GPA (CGPA)</div>
+            <div style="font-size:1.35rem; font-weight:800; color:var(--primary-navy);" th:text="${#numbers.formatDecimal(currentStudent.cgpa, 1, 2)}">3.95</div>
           </div>
           <div>
-            <div class="stat-label">Cumulative GPA (CGPA)</div>
-            <div style="font-size: 1.25rem; color: var(--success); font-weight: 700; margin-top: 4px;"
-                 th:text="${currentStudent != null ? #numbers.formatDecimal(currentStudent.cgpa, 1, 2) : '3.95'}">3.95</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">University Email</div>
+            <div style="font-size:0.95rem; color:var(--text-main);" th:text="${currentStudent.email}">student@university.edu</div>
           </div>
           <div>
-            <div class="stat-label">Contact Email</div>
-            <div style="font-size: 0.95rem; color: var(--text-main); margin-top: 4px;"
-                 th:text="${currentStudent != null ? currentStudent.email : 'student@university.edu'}">student@university.edu</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Contact Phone</div>
+            <div style="font-size:0.95rem; color:var(--text-main);" th:text="${currentStudent.phoneNumber != null ? currentStudent.phoneNumber : 'Not Specified'}">+1-555-0201</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- RBAC Clearance Notice -->
-    <div class="portal-alert portal-alert-info" id="clearanceNotice">
-      <span style="font-size: 1.2rem;">ℹ️</span>
-      <div>
-        <strong>Role-Based Access Control Policy (CSE 3230 Lab):</strong>
-        <p style="font-size: 0.85rem; margin-top: 2px;">
-          As an authenticated Student, you are authorized to manage <strong>Student resources only</strong>. Faculty and Administrative consoles are restricted to authorized instructors and registrar personnel.
-        </p>
+    <!-- 2. CAMPUS NOTICES & ANNOUNCEMENTS WITH STUDENT COMMENTS -->
+    <section id="notices" style="margin-bottom: 36px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+        <div>
+          <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--primary-navy);">📢 Campus Notices &amp; Announcements</h2>
+          <p style="font-size: 0.88rem; color: var(--text-muted);">Official circulars from faculty and administration. You may post inquiries or comments below each notice.</p>
+        </div>
       </div>
-    </div>
 
-    <!-- Student Peer Directory Management Table -->
-    <div class="card" id="studentDirectory">
-      <div class="card-header">
-        <h3 class="card-title">Student Peer Directory (<span th:text="${#lists.size(students)}">0</span>)</h3>
-        <button class="btn btn-primary btn-sm" onclick="openModal('addStudentModal')">+ Register New Student Record</button>
+      <div th:if="${#lists.isEmpty(notices)}" class="card" style="padding: 32px; text-align: center; color: var(--text-muted);">
+        No official notices published at this time.
       </div>
-      <div class="table-responsive">
-        <table class="portal-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Student ID</th>
-              <th>Full Name</th>
-              <th>Email</th>
-              <th>Department</th>
-              <th>Semester</th>
-              <th>CGPA</th>
-              <th>Phone</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr th:each="s : ${students}">
-              <td th:text="${s.id}">1</td>
-              <td><span class="code-tag" th:text="${s.studentId}">STU-2024-001</span></td>
-              <td><strong th:text="${s.fullName}">Ada Lovelace</strong></td>
-              <td th:text="${s.email}">student@university.edu</td>
-              <td th:text="${s.department}">Computer Science</td>
-              <td th:text="${s.semester}">4th Semester</td>
-              <td><strong style="color:var(--primary-navy);" th:text="${#numbers.formatDecimal(s.cgpa, 1, 2)}">3.95</strong></td>
-              <td th:text="${s.phoneNumber != null ? s.phoneNumber : 'N/A'}">+1-555</td>
-              <td>
-                <div style="display:flex; gap:6px;">
-                  <button type="button" class="btn btn-outline btn-sm"
-                          th:data-id="${s.id}"
-                          th:data-code="${s.studentId}"
-                          th:data-name="${s.fullName}"
-                          th:data-email="${s.email}"
-                          th:data-dept="${s.department}"
-                          th:data-semester="${s.semester}"
-                          th:data-cgpa="${s.cgpa}"
-                          th:data-phone="${s.phoneNumber}"
-                          onclick="openEditStudentModalFromData(this)">Edit</button>
-                  <form th:action="@{'/student/students/delete/' + ${s.id}}" method="post" onsubmit="return confirm('Remove student record?');" style="display:inline;">
-                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                  </form>
+
+      <!-- Notice Cards Loop -->
+      <div th:each="n : ${notices}" class="notice-card"
+           th:classappend="${n.category == 'Examination' ? 'cat-examination' : (n.category == 'Academic' ? 'cat-academic' : 'cat-general')}"
+           th:id="'notice-' + ${n.id}">
+        
+        <div class="notice-header">
+          <div>
+            <div class="notice-title" th:text="${n.title}">Notice Headline</div>
+            <div class="notice-meta">
+              <span><strong>Posted by:</strong> <span th:text="${n.authorName}">Dr. Alan Turing</span> (<span th:text="${n.authorRole}">TEACHER</span>)</span>
+              <span>&bull;</span>
+              <span th:text="${#temporals.format(n.postedAt, 'MMMM d, yyyy - hh:mm a')}">October 25, 2026</span>
+            </div>
+          </div>
+          <div>
+            <span class="notice-tag"
+                  th:classappend="${n.category == 'Examination' ? 'tag-exam' : (n.category == 'Academic' ? 'tag-academic' : 'tag-general')}"
+                  th:text="${n.category}">General</span>
+          </div>
+        </div>
+
+        <div class="notice-body">
+          <p th:text="${n.content}">Notice description details...</p>
+        </div>
+
+        <!-- Comments & Inquiries Section -->
+        <div class="notice-comments-wrap">
+          <div class="notice-comments-title">
+            <span>💬 Discussion &amp; Student Questions</span>
+            <span th:text="'(' + ${#lists.size(n.comments)} + ')'">(0)</span>
+          </div>
+
+          <!-- Existing Comments Thread -->
+          <div class="comment-list" th:if="${not #lists.isEmpty(n.comments)}">
+            <div th:each="c : ${n.comments}" class="comment-bubble">
+              <div class="comment-meta">
+                <div class="comment-author">
+                  <span th:text="${c.authorName}">Ada Lovelace</span>
+                  <span class="badge-role"
+                        th:classappend="${c.authorRole == 'TEACHER' ? 'badge-role-teacher' : (c.authorRole == 'ADMIN' ? 'badge-role-admin' : 'badge-role-student')}"
+                        th:text="${c.authorRole}">STUDENT</span>
                 </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                <div class="comment-time" th:text="${#temporals.format(c.commentedAt, 'MMM d, h:mm a')}">Oct 25, 8:40 AM</div>
+              </div>
+              <div class="comment-text" th:text="${c.content}">Comment inquiry text...</div>
+            </div>
+          </div>
+
+          <!-- Write a Comment Form -->
+          <form th:action="@{'/student/notices/' + ${n.id} + '/comment'}" method="post">
+            <div class="comment-input-box">
+              <input type="text" name="content" class="comment-input" placeholder="Ask a question or post a comment regarding this notice..." required>
+              <button type="submit" class="btn btn-navy btn-sm" style="white-space:nowrap;">Post Comment</button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </section>
+
+    <!-- 3. ENROLLED COURSES -->
+    <section id="courses" style="margin-bottom: 36px;">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Spring 2026 Course Enrollments</h3>
+          <span style="font-size:0.85rem; color:var(--text-muted);">Total Credits: <strong>12.0</strong></span>
+        </div>
+        <div class="table-responsive">
+          <table class="portal-table">
+            <thead>
+              <tr>
+                <th>Course Code</th>
+                <th>Course Title</th>
+                <th>Credits</th>
+                <th>Instructor</th>
+                <th>Schedule</th>
+                <th>Room</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="code-tag">CSE 3201</span></td>
+                <td><strong>Operating Systems &amp; System Programming</strong></td>
+                <td>3.0</td>
+                <td>Dr. Alan Turing</td>
+                <td>Sun, Tue 09:30 - 11:00 AM</td>
+                <td>Hall B-402</td>
+                <td><span class="badge-role badge-role-teacher">Regular</span></td>
+              </tr>
+              <tr>
+                <td><span class="code-tag">CSE 3215</span></td>
+                <td><strong>Database Management Systems</strong></td>
+                <td>3.0</td>
+                <td>Dr. Donald Knuth</td>
+                <td>Mon, Wed 11:15 - 12:45 PM</td>
+                <td>Lab 301</td>
+                <td><span class="badge-role badge-role-teacher">Regular</span></td>
+              </tr>
+              <tr>
+                <td><span class="code-tag">CSE 3220</span></td>
+                <td><strong>Software Engineering &amp; Architecture</strong></td>
+                <td>3.0</td>
+                <td>Prof. Margaret Hamilton</td>
+                <td>Sun, Thu 01:30 - 03:00 PM</td>
+                <td>Auditorium 2</td>
+                <td><span class="badge-role badge-role-teacher">Regular</span></td>
+              </tr>
+              <tr>
+                <td><span class="code-tag">CSE 3231</span></td>
+                <td><strong>Computer Networks &amp; Security</strong></td>
+                <td>3.0</td>
+                <td>Dr. Grace Hopper</td>
+                <td>Tue, Thu 10:00 - 11:30 AM</td>
+                <td>Networking Lab</td>
+                <td><span class="badge-role badge-role-teacher">Regular</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. STUDENT DIRECTORY -->
+    <section id="directory">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">Student Directory (<span th:text="${#lists.size(students)}">0</span>)</h3>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-top:2px;">Enrolled undergraduate student records</p>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="openModal('addStudentModal')">+ Register New Student</button>
+        </div>
+        <div class="table-responsive">
+          <table class="portal-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Student Code</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Department</th>
+                <th>Semester</th>
+                <th>CGPA</th>
+                <th>Phone</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="s : ${students}">
+                <td th:text="${s.id}">1</td>
+                <td><span class="code-tag" th:text="${s.studentId}">STU-2024-001</span></td>
+                <td><strong th:text="${s.fullName}">Ada Lovelace</strong></td>
+                <td th:text="${s.email}">student@university.edu</td>
+                <td th:text="${s.department}">Computer Science</td>
+                <td th:text="${s.semester}">4th Semester</td>
+                <td><strong style="color:var(--primary-navy);" th:text="${#numbers.formatDecimal(s.cgpa, 1, 2)}">3.95</strong></td>
+                <td th:text="${s.phoneNumber != null ? s.phoneNumber : 'N/A'}">+1-555</td>
+                <td>
+                  <div style="display:flex; gap:6px;">
+                    <button type="button" class="btn btn-outline btn-sm"
+                            th:data-id="${s.id}"
+                            th:data-code="${s.studentId}"
+                            th:data-name="${s.fullName}"
+                            th:data-email="${s.email}"
+                            th:data-dept="${s.department}"
+                            th:data-semester="${s.semester}"
+                            th:data-cgpa="${s.cgpa}"
+                            th:data-phone="${s.phoneNumber}"
+                            onclick="openEditStudentModalFromData(this)">Edit</button>
+                    <form th:action="@{'/student/students/delete/' + ${s.id}}" method="post" onsubmit="return confirm('Remove student record?');" style="display:inline;">
+                      <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
   </main>
 
@@ -284,14 +421,14 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" onclick="closeModal('editStudentModal')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Update Student Record</button>
+          <button type="submit" class="btn btn-primary">Update Record</button>
         </div>
       </form>
     </div>
   </div>
 
   <footer class="portal-footer">
-    &copy; 2026 Metropolitan University &bull; Academic Management Information System (AMIS) &bull; Student Portal
+    &copy; 2026 Metropolitan University &bull; Academic Management Information System &bull; Student Portal
   </footer>
 
   <script>

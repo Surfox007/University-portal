@@ -3,143 +3,208 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Administrator Portal | Metropolitan University</title>
+  <title>Administration Portal | Metropolitan University</title>
   <link rel="stylesheet" th:href="@{/css/portal.css}">
 </head>
 <body>
 
-  <!-- Top Institutional Header -->
+  <!-- Top Academic Navigation Bar -->
   <header class="portal-header">
     <div class="portal-header-top">
       <div class="portal-brand">
         <div class="portal-seal">🎓</div>
         <div>
           <div class="portal-name">METROPOLITAN UNIVERSITY</div>
-          <div class="portal-sub">Central Administrative Console &bull; Full Authorization</div>
+          <div class="portal-sub">Office of the Registrar &amp; Central Administration</div>
         </div>
       </div>
-      <div class="portal-user-meta">
-        <span class="user-tag">
-          Active User: <strong th:text="${adminUser}">admin</strong>
-          <span class="badge-role badge-role-admin">ROLE_ADMIN</span>
-        </span>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-          <button type="submit" class="btn btn-outline btn-sm" style="color:#ffffff; border-color:rgba(255,255,255,0.3); background:transparent;">Sign Out</button>
+
+      <div class="user-profile-badge">
+        <div class="user-avatar" style="background:#DC2626;" th:text="${currentAdmin != null ? #strings.substring(currentAdmin.fullName, 0, 1) : 'A'}">A</div>
+        <div class="user-meta">
+          <div class="user-name" th:text="${currentAdmin != null ? currentAdmin.fullName : adminUser}">Dr. Robert Vance</div>
+          <div class="user-role-text">
+            <span class="badge-role badge-role-admin">Administrator</span>
+            <span style="color: #BFDBFE; font-size:0.75rem;" th:if="${currentAdmin != null}" th:text="'(' + ${currentAdmin.adminCode} + ')'">(ADM-001)</span>
+          </div>
+        </div>
+        <form th:action="@{/logout}" method="post" style="display:inline; margin-left: 12px;">
+          <button type="submit" class="btn btn-outline btn-sm" style="border-color: rgba(255,255,255,0.4); color:#FFFFFF;">Logout</button>
         </form>
       </div>
     </div>
+
+    <!-- Main Navigation Bar with Tabs -->
+    <nav class="portal-nav">
+      <div class="portal-nav-inner">
+        <a th:href="@{/admin/dashboard(tab='overview')}" class="nav-link" th:classappend="${activeTab == 'overview' ? 'active' : ''}">Overview</a>
+        <a th:href="@{/admin/dashboard(tab='notices')}" class="nav-link" th:classappend="${activeTab == 'notices' ? 'active' : ''}">Campus Notices</a>
+        <a th:href="@{/admin/dashboard(tab='students')}" class="nav-link" th:classappend="${activeTab == 'students' ? 'active' : ''}">Student Records</a>
+        <a th:href="@{/admin/dashboard(tab='teachers')}" class="nav-link" th:classappend="${activeTab == 'teachers' ? 'active' : ''}">Faculty Records</a>
+        <a th:href="@{/admin/dashboard(tab='admins')}" class="nav-link" th:classappend="${activeTab == 'admins' ? 'active' : ''}">Administration</a>
+      </div>
+    </nav>
   </header>
 
-  <!-- Secondary Navigation Bar -->
-  <nav class="portal-nav">
-    <div class="portal-nav-inner">
-      <div class="nav-links">
-        <a th:href="@{/admin/dashboard(tab='overview')}" th:classappend="${activeTab == 'overview' ? 'active' : ''}" class="nav-link">
-          📊 Overview
-        </a>
-        <a th:href="@{/admin/dashboard(tab='students')}" th:classappend="${activeTab == 'students' ? 'active' : ''}" class="nav-link">
-          👨‍🎓 Manage Students (<span th:text="${totalStudents}">0</span>)
-        </a>
-        <a th:href="@{/admin/dashboard(tab='teachers')}" th:classappend="${activeTab == 'teachers' ? 'active' : ''}" class="nav-link">
-          👨‍🏫 Manage Faculty (<span th:text="${totalTeachers}">0</span>)
-        </a>
-        <a th:href="@{/admin/dashboard(tab='admins')}" th:classappend="${activeTab == 'admins' ? 'active' : ''}" class="nav-link">
-          🛡️ Manage Admins (<span th:text="${totalAdmins}">0</span>)
-        </a>
-      </div>
-      <div style="font-size: 0.8rem; color: var(--text-muted);">
-        Role Clearance: <strong>All Resources Permitted</strong>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Main Container -->
   <main class="portal-container">
 
-    <!-- Flash Messages -->
+    <!-- Flash Feedback Messages -->
     <div th:if="${successMessage}" class="portal-alert portal-alert-success">
-      <span>✅</span>
-      <span th:text="${successMessage}">Operation completed successfully.</span>
+      <span>✓</span> <span th:text="${successMessage}">Operation completed successfully.</span>
     </div>
     <div th:if="${errorMessage}" class="portal-alert portal-alert-danger">
-      <span>⚠️</span>
-      <span th:text="${errorMessage}">An error occurred.</span>
+      <span>⚠️</span> <span th:text="${errorMessage}">An error occurred.</span>
     </div>
 
     <!-- 1. OVERVIEW TAB -->
     <section th:if="${activeTab == 'overview'}">
       <div class="page-header">
         <div class="breadcrumb">
-          <a th:href="@{/admin/dashboard}">Home</a> &rsaquo; <span>Administrator Dashboard</span>
+          <span>Home</span> &rsaquo; <span>Central Administration</span> &rsaquo; <span>Executive Dashboard</span>
         </div>
-        <h1 class="page-title">University Overview &amp; Registry Metrics</h1>
-        <p class="page-desc">Comprehensive system overview and cross-department administrative management.</p>
+        <h1 class="page-title">University Operational Overview</h1>
+        <p class="page-desc">Academic Term: Spring 2026 &bull; Central Registrar &amp; Campus Information System</p>
       </div>
 
-      <!-- Stat Cards -->
+      <!-- Stat Counters -->
       <div class="stat-grid">
         <div class="stat-card">
           <div class="stat-label">Enrolled Students</div>
           <div class="stat-val" th:text="${totalStudents}">0</div>
-          <div class="stat-desc">Full CRUD management enabled</div>
+          <div class="stat-desc">Active undergraduate records</div>
         </div>
         <div class="stat-card" style="border-top-color: #3B82F6;">
           <div class="stat-label">Faculty Members</div>
           <div class="stat-val" th:text="${totalTeachers}">0</div>
-          <div class="stat-desc">Across all university departments</div>
+          <div class="stat-desc">Across university departments</div>
         </div>
-        <div class="stat-card" style="border-top-color: #F59E0B;">
-          <div class="stat-label">System Administrators</div>
-          <div class="stat-val" th:text="${totalAdmins}">0</div>
-          <div class="stat-desc">Security &amp; clearance management</div>
+        <div class="stat-card" style="border-top-color: #059669;">
+          <div class="stat-label">Active Campus Notices</div>
+          <div class="stat-val" th:text="${totalNotices}">0</div>
+          <div class="stat-desc">Official published circulars</div>
         </div>
-        <div class="stat-card" style="border-top-color: #10B981;">
-          <div class="stat-label">Academic Semester</div>
-          <div class="stat-val" style="font-size: 1.5rem;">Spring 2026</div>
-          <div class="stat-desc">CSE 3230 Lab Session 4</div>
+        <div class="stat-card" style="border-top-color: #DC2626;">
+          <div class="stat-label">System Administrator</div>
+          <div class="stat-val" th:text="${totalAdmins}">1</div>
+          <div class="stat-desc">Registrar clearance office</div>
         </div>
       </div>
 
-      <!-- Role Permission Notice -->
-      <div class="card">
+      <!-- Quick Directory Navigation Cards -->
+      <div class="card" style="margin-top: 24px;">
         <div class="card-header">
-          <h3 class="card-title">🛡️ Administrator Authority Matrix</h3>
+          <h3 class="card-title">Central Management Directories</h3>
         </div>
         <div class="card-body">
-          <p style="margin-bottom: 16px; color: var(--text-muted); font-size: 0.9rem;">
-            As an Administrator, you have full Read, Create, Update, and Delete permissions across all three university domains:
-          </p>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
-            <div style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 14px; background:#F8FAFC;">
-              <h4 style="color:var(--primary-navy); margin-bottom: 6px;">👨‍🎓 Students Directory</h4>
-              <p style="font-size:0.83rem; color:var(--text-muted);">Manage roll codes, names, departments, semester progression, and cumulative GPA records.</p>
-              <a th:href="@{/admin/dashboard(tab='students')}" class="btn btn-outline btn-sm" style="margin-top: 10px;">Open Students &rarr;</a>
+            <div style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px; background:#F8FAFC;">
+              <h4 style="color:var(--primary-navy); margin-bottom: 6px;">📢 Campus Notices Board</h4>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom: 12px;">Publish official circulars, view student questions, and moderate community comments.</p>
+              <a th:href="@{/admin/dashboard(tab='notices')}" class="btn btn-outline btn-sm">Manage Notices &rarr;</a>
             </div>
-            <div style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 14px; background:#F8FAFC;">
+            <div style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px; background:#F8FAFC;">
+              <h4 style="color:var(--primary-navy); margin-bottom: 6px;">👨‍🎓 Student Directory</h4>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom: 12px;">Register new students, update semester progression, and audit cumulative GPA records.</p>
+              <a th:href="@{/admin/dashboard(tab='students')}" class="btn btn-outline btn-sm">Manage Students &rarr;</a>
+            </div>
+            <div style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px; background:#F8FAFC;">
               <h4 style="color:var(--primary-navy); margin-bottom: 6px;">👨‍🏫 Faculty Directory</h4>
-              <p style="font-size:0.83rem; color:var(--text-muted);">Manage academic designations, departmental affiliations, and faculty credentials.</p>
-              <a th:href="@{/admin/dashboard(tab='teachers')}" class="btn btn-outline btn-sm" style="margin-top: 10px;">Open Faculty &rarr;</a>
-            </div>
-            <div style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 14px; background:#F8FAFC;">
-              <h4 style="color:var(--primary-navy); margin-bottom: 6px;">🛡️ Administrator Directory</h4>
-              <p style="font-size:0.83rem; color:var(--text-muted);">Authorize central officers, configure system roles, and audit account access.</p>
-              <a th:href="@{/admin/dashboard(tab='admins')}" class="btn btn-outline btn-sm" style="margin-top: 10px;">Open Administrators &rarr;</a>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom: 12px;">Manage academic designations, departmental appointments, and faculty credentials.</p>
+              <a th:href="@{/admin/dashboard(tab='teachers')}" class="btn btn-outline btn-sm">Manage Faculty &rarr;</a>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 2. STUDENTS MANAGEMENT TAB -->
+    <!-- 2. CAMPUS NOTICES TAB -->
+    <section th:if="${activeTab == 'notices'}">
+      <div class="page-header">
+        <div class="breadcrumb">
+          <a th:href="@{/admin/dashboard}">Home</a> &rsaquo; <span>Campus Notices</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px;">
+          <div>
+            <h1 class="page-title">Campus Notices &amp; Announcements</h1>
+            <p class="page-desc">Publish official university announcements, monitor discussions, and moderate student inquiries.</p>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('createAdminNoticeModal')">+ Publish Official Notice</button>
+        </div>
+      </div>
+
+      <div th:if="${#lists.isEmpty(notices)}" class="card" style="padding: 32px; text-align: center; color: var(--text-muted);">
+        No campus notices currently active.
+      </div>
+
+      <!-- Notice Loop -->
+      <div th:each="n : ${notices}" class="notice-card"
+           th:classappend="${n.category == 'Examination' ? 'cat-examination' : (n.category == 'Academic' ? 'cat-academic' : 'cat-general')}"
+           th:id="'notice-' + ${n.id}">
+        
+        <div class="notice-header">
+          <div>
+            <div class="notice-title" th:text="${n.title}">Notice Headline</div>
+            <div class="notice-meta">
+              <span><strong>Author:</strong> <span th:text="${n.authorName}">Author Name</span> (<span th:text="${n.authorRole}">ROLE</span>)</span>
+              <span>&bull;</span>
+              <span th:text="${#temporals.format(n.postedAt, 'MMMM d, yyyy - hh:mm a')}">Date</span>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="notice-tag"
+                  th:classappend="${n.category == 'Examination' ? 'tag-exam' : (n.category == 'Academic' ? 'tag-academic' : 'tag-general')}"
+                  th:text="${n.category}">General</span>
+            <form th:action="@{'/admin/notices/delete/' + ${n.id}}" method="post" onsubmit="return confirm('Permanently delete this campus notice and all comments?');" style="display:inline;">
+              <button type="submit" class="btn btn-danger btn-sm">Delete Notice</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="notice-body">
+          <p th:text="${n.content}">Notice description details...</p>
+        </div>
+
+        <!-- Comments & Inquiries Section -->
+        <div class="notice-comments-wrap">
+          <div class="notice-comments-title">
+            <span>💬 Discussion &amp; Inquiries</span>
+            <span th:text="'(' + ${#lists.size(n.comments)} + ')'">(0)</span>
+          </div>
+
+          <!-- Existing Comments Thread -->
+          <div class="comment-list" th:if="${not #lists.isEmpty(n.comments)}">
+            <div th:each="c : ${n.comments}" class="comment-bubble">
+              <div class="comment-meta">
+                <div class="comment-author">
+                  <span th:text="${c.authorName}">Author Name</span>
+                  <span class="badge-role"
+                        th:classappend="${c.authorRole == 'TEACHER' ? 'badge-role-teacher' : (c.authorRole == 'ADMIN' ? 'badge-role-admin' : 'badge-role-student')}"
+                        th:text="${c.authorRole}">ROLE</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <span class="comment-time" th:text="${#temporals.format(c.commentedAt, 'MMM d, h:mm a')}">Time</span>
+                  <form th:action="@{'/admin/notices/comments/delete/' + ${c.id}}" method="post" onsubmit="return confirm('Remove this comment?');" style="display:inline;">
+                    <button type="submit" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:0.75rem; font-weight:600;">Remove</button>
+                  </form>
+                </div>
+              </div>
+              <div class="comment-text" th:text="${c.content}">Comment text...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. STUDENTS MANAGEMENT TAB -->
     <section th:if="${activeTab == 'students'}">
       <div class="page-header">
         <div class="breadcrumb">
-          <a th:href="@{/admin/dashboard}">Home</a> &rsaquo; <span>Student Management</span>
+          <a th:href="@{/admin/dashboard}">Home</a> &rsaquo; <span>Student Directory</span>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px;">
           <div>
-            <h1 class="page-title">Student Records Management</h1>
-            <p class="page-desc">Add, view, edit, and delete student records.</p>
+            <h1 class="page-title">Enrolled Student Directory</h1>
+            <p class="page-desc">Comprehensive undergraduate records, departmental enrollments, and academic standings.</p>
           </div>
           <button class="btn btn-primary" onclick="openModal('addStudentModal')">+ Register New Student</button>
         </div>
@@ -147,7 +212,7 @@
 
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Registered Students (<span th:text="${#lists.size(students)}">0</span>)</h3>
+          <h3 class="card-title">Enrolled Students (<span th:text="${#lists.size(students)}">0</span>)</h3>
         </div>
         <div class="table-responsive">
           <table class="portal-table">
@@ -201,16 +266,16 @@
       </div>
     </section>
 
-    <!-- 3. TEACHERS MANAGEMENT TAB -->
+    <!-- 4. TEACHERS MANAGEMENT TAB -->
     <section th:if="${activeTab == 'teachers'}">
       <div class="page-header">
         <div class="breadcrumb">
-          <a th:href="@{/admin/dashboard}">Home</a> &rsaquo; <span>Faculty Management</span>
+          <a th:href="@{/admin/dashboard}">Home</a> &rsaquo; <span>Faculty Directory</span>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px;">
           <div>
-            <h1 class="page-title">Faculty Records Management</h1>
-            <p class="page-desc">Add, view, edit, and delete university faculty members.</p>
+            <h1 class="page-title">University Faculty Directory</h1>
+            <p class="page-desc">Academic personnel across all instructional departments and ranks.</p>
           </div>
           <button class="btn btn-primary" onclick="openModal('addTeacherModal')">+ Register New Faculty</button>
         </div>
@@ -218,7 +283,7 @@
 
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Registered Faculty Members (<span th:text="${#lists.size(teachers)}">0</span>)</h3>
+          <h3 class="card-title">Appointed Faculty Members (<span th:text="${#lists.size(teachers)}">0</span>)</h3>
         </div>
         <div class="table-responsive">
           <table class="portal-table">
@@ -269,24 +334,23 @@
       </div>
     </section>
 
-    <!-- 4. ADMINS MANAGEMENT TAB -->
+    <!-- 5. ADMINS MANAGEMENT TAB -->
     <section th:if="${activeTab == 'admins'}">
       <div class="page-header">
         <div class="breadcrumb">
-          <a th:href="@{/admin/dashboard}">Home</a> &rsaquo; <span>Administrator Management</span>
+          <a th:href="@{/admin/dashboard}">Home</a> &rsaquo; <span>Central Administration</span>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px;">
           <div>
-            <h1 class="page-title">Administrator Accounts Management</h1>
-            <p class="page-desc">Create and manage central administration officers with full system clearance.</p>
+            <h1 class="page-title">Central Administration Accounts</h1>
+            <p class="page-desc">Registrar clearance officers and administrative credentials.</p>
           </div>
-          <button class="btn btn-primary" onclick="openModal('addAdminModal')">+ Create New Admin</button>
         </div>
       </div>
 
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">System Administrators (<span th:text="${#lists.size(admins)}">0</span>)</h3>
+          <h3 class="card-title">Registrar Officers (<span th:text="${#lists.size(admins)}">1</span>)</h3>
         </div>
         <div class="table-responsive">
           <table class="portal-table">
@@ -303,16 +367,13 @@
               </tr>
             </thead>
             <tbody>
-              <tr th:if="${#lists.isEmpty(admins)}">
-                <td colspan="8" style="text-align:center; padding: 24px; color: var(--text-muted);">No administrators found.</td>
-              </tr>
               <tr th:each="a : ${admins}">
                 <td th:text="${a.id}">1</td>
                 <td><span class="code-tag" th:text="${a.adminCode}">ADM-001</span></td>
-                <td><strong th:text="${a.fullName}">Admin Name</strong></td>
+                <td><strong th:text="${a.fullName}">Dr. Robert Vance</strong></td>
                 <td th:text="${a.email}">admin@university.edu</td>
-                <td th:text="${a.department}">Administration</td>
-                <td th:text="${a.phoneNumber != null ? a.phoneNumber : 'N/A'}">+1-555</td>
+                <td th:text="${a.department}">Office of the Registrar</td>
+                <td th:text="${a.phoneNumber != null ? a.phoneNumber : 'N/A'}">+1-555-0100</td>
                 <td><code th:text="${a.username}">admin</code></td>
                 <td>
                   <div style="display:flex; gap:6px;">
@@ -324,9 +385,6 @@
                             th:data-dept="${a.department}"
                             th:data-phone="${a.phoneNumber}"
                             onclick="openEditAdminModalFromData(this)">Edit</button>
-                    <form th:action="@{'/admin/admins/delete/' + ${a.id}}" method="post" onsubmit="return confirm('Permanently remove this administrator account?');" style="display:inline;">
-                      <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                    </form>
                   </div>
                 </td>
               </tr>
@@ -339,6 +397,40 @@
   </main>
 
   <!-- MODALS -->
+
+  <!-- Create Admin Notice Modal -->
+  <div id="createAdminNoticeModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Publish Official Campus Notice</h3>
+        <button class="modal-close" onclick="closeModal('createAdminNoticeModal')">&times;</button>
+      </div>
+      <form th:action="@{/admin/notices/create}" method="post">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Notice Headline / Title</label>
+            <input type="text" name="title" class="form-input" placeholder="e.g. Campus Library Schedule Update" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Notice Category</label>
+            <select name="category" class="form-input" required>
+              <option value="General">General Campus Announcement</option>
+              <option value="Academic">Academic Notice</option>
+              <option value="Examination">Examination Announcement</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Announcement Content</label>
+            <textarea name="content" class="form-input" rows="5" placeholder="Enter official announcement details..." required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('createAdminNoticeModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Publish Announcement</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- Add Student Modal -->
   <div id="addStudentModal" class="modal-overlay">
@@ -380,13 +472,13 @@
             </div>
             <div class="form-group">
               <label class="form-label">Phone Number</label>
-              <input type="text" name="phoneNumber" class="form-input" placeholder="+1-555-0199">
+              <input type="text" name="phoneNumber" class="form-input" placeholder="+1-555-0104">
             </div>
           </div>
           <div class="form-grid-2">
             <div class="form-group">
               <label class="form-label">Login Username</label>
-              <input type="text" name="username" class="form-input" placeholder="e.g. katherine">
+              <input type="text" name="username" class="form-input" placeholder="e.g. kjohnson">
             </div>
             <div class="form-group">
               <label class="form-label">Initial Password</label>
@@ -396,7 +488,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" onclick="closeModal('addStudentModal')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Student Record</button>
+          <button type="submit" class="btn btn-primary">Save Student</button>
         </div>
       </form>
     </div>
@@ -448,7 +540,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" onclick="closeModal('editStudentModal')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Update Student Record</button>
+          <button type="submit" class="btn btn-primary">Update Student</button>
         </div>
       </form>
     </div>
@@ -466,7 +558,7 @@
           <div class="form-grid-2">
             <div class="form-group">
               <label class="form-label">Teacher Code</label>
-              <input type="text" name="teacherCode" class="form-input" placeholder="e.g. T-102" required>
+              <input type="text" name="teacherCode" class="form-input" placeholder="e.g. T-105" required>
             </div>
             <div class="form-group">
               <label class="form-label">Full Name</label>
@@ -484,12 +576,12 @@
             </div>
             <div class="form-group">
               <label class="form-label">Designation</label>
-              <input type="text" name="designation" class="form-input" placeholder="Associate Professor" required>
+              <input type="text" name="designation" class="form-input" placeholder="Professor" required>
             </div>
           </div>
           <div class="form-group">
             <label class="form-label">Phone Number</label>
-            <input type="text" name="phoneNumber" class="form-input" placeholder="+1-555-0188">
+            <input type="text" name="phoneNumber" class="form-input" placeholder="+1-555-0105">
           </div>
           <div class="form-grid-2">
             <div class="form-group">
@@ -504,7 +596,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" onclick="closeModal('addTeacherModal')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Faculty Record</button>
+          <button type="submit" class="btn btn-primary">Save Faculty</button>
         </div>
       </form>
     </div>
@@ -550,59 +642,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" onclick="closeModal('editTeacherModal')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Update Faculty Record</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Add Admin Modal -->
-  <div id="addAdminModal" class="modal-overlay">
-    <div class="modal-dialog">
-      <div class="modal-header">
-        <h3>Register New Administrator</h3>
-        <button class="modal-close" onclick="closeModal('addAdminModal')">&times;</button>
-      </div>
-      <form th:action="@{/admin/admins/create}" method="post">
-        <div class="modal-body">
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">Admin Code</label>
-              <input type="text" name="adminCode" class="form-input" placeholder="e.g. ADM-002" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Full Name</label>
-              <input type="text" name="fullName" class="form-input" placeholder="e.g. Barbara Liskov" required>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Email Address</label>
-            <input type="email" name="email" class="form-input" placeholder="e.g. liskov@university.edu" required>
-          </div>
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">Department</label>
-              <input type="text" name="department" class="form-input" placeholder="Central Administration" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Phone Number</label>
-              <input type="text" name="phoneNumber" class="form-input" placeholder="+1-555-0177">
-            </div>
-          </div>
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">Login Username</label>
-              <input type="text" name="username" class="form-input" placeholder="e.g. liskov">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Initial Password</label>
-              <input type="password" name="password" class="form-input" placeholder="Default: admin123">
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline" onclick="closeModal('addAdminModal')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Create Administrator</button>
+          <button type="submit" class="btn btn-primary">Update Faculty</button>
         </div>
       </form>
     </div>
@@ -612,7 +652,7 @@
   <div id="editAdminModal" class="modal-overlay">
     <div class="modal-dialog">
       <div class="modal-header">
-        <h3>Edit Administrator Record</h3>
+        <h3>Edit Administrator Profile</h3>
         <button class="modal-close" onclick="closeModal('editAdminModal')">&times;</button>
       </div>
       <form id="editAdminForm" method="post">
@@ -644,14 +684,14 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" onclick="closeModal('editAdminModal')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Update Administrator</button>
+          <button type="submit" class="btn btn-primary">Update Profile</button>
         </div>
       </form>
     </div>
   </div>
 
   <footer class="portal-footer">
-    &copy; 2026 Metropolitan University &bull; Academic Management Information System (AMIS) &bull; Spring Boot &amp; Spring Security
+    &copy; 2026 Metropolitan University &bull; Academic Management Information System &bull; Office of the Registrar
   </footer>
 
   <script>

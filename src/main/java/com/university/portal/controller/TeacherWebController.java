@@ -3,6 +3,7 @@ package com.university.portal.controller;
 import com.university.portal.dto.TeacherRequest;
 import com.university.portal.entity.Teacher;
 import com.university.portal.repository.TeacherRepository;
+import com.university.portal.service.NoticeService;
 import com.university.portal.service.TeacherService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -18,10 +19,14 @@ public class TeacherWebController {
 
     private final TeacherService teacherService;
     private final TeacherRepository teacherRepository;
+    private final NoticeService noticeService;
 
-    public TeacherWebController(TeacherService teacherService, TeacherRepository teacherRepository) {
+    public TeacherWebController(TeacherService teacherService,
+                                TeacherRepository teacherRepository,
+                                NoticeService noticeService) {
         this.teacherService = teacherService;
         this.teacherRepository = teacherRepository;
+        this.noticeService = noticeService;
     }
 
     @GetMapping("/dashboard")
@@ -32,15 +37,68 @@ public class TeacherWebController {
         model.addAttribute("username", username);
         model.addAttribute("currentTeacher", currentTeacher);
         model.addAttribute("teachers", teacherService.getAllTeachers());
+        model.addAttribute("notices", noticeService.getAllNotices());
 
         return "teacher/dashboard";
+    }
+
+    @PostMapping("/notices/create")
+    public String createNotice(@RequestParam("title") String title,
+                               @RequestParam("category") String category,
+                               @RequestParam("content") String content,
+                               Authentication authentication,
+                               RedirectAttributes redirectAttributes) {
+        try {
+            String username = authentication.getName();
+            Teacher teacher = teacherRepository.findByUserUsername(username).orElse(null);
+            String authorName = (teacher != null) ? teacher.getFullName() : username;
+
+            noticeService.createNotice(title.trim(), content.trim(), category, authorName, "TEACHER");
+            redirectAttributes.addFlashAttribute("successMessage", "Notice successfully published to students.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to publish notice: " + e.getMessage());
+        }
+        return "redirect:/teacher/dashboard#notices";
+    }
+
+    @PostMapping("/notices/{id}/comment")
+    public String addComment(@PathVariable Long id,
+                             @RequestParam("content") String content,
+                             Authentication authentication,
+                             RedirectAttributes redirectAttributes) {
+        try {
+            if (content == null || content.trim().isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Reply cannot be empty.");
+                return "redirect:/teacher/dashboard#notice-" + id;
+            }
+            String username = authentication.getName();
+            Teacher teacher = teacherRepository.findByUserUsername(username).orElse(null);
+            String authorName = (teacher != null) ? teacher.getFullName() : username;
+
+            noticeService.addComment(id, authorName, "TEACHER", content.trim());
+            redirectAttributes.addFlashAttribute("successMessage", "Reply posted successfully.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to post reply: " + e.getMessage());
+        }
+        return "redirect:/teacher/dashboard#notice-" + id;
+    }
+
+    @PostMapping("/notices/delete/{id}")
+    public String deleteNotice(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            noticeService.deleteNotice(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Notice deleted.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete notice: " + e.getMessage());
+        }
+        return "redirect:/teacher/dashboard#notices";
     }
 
     @PostMapping("/teachers/create")
     public String createTeacher(@ModelAttribute TeacherRequest request, RedirectAttributes redirectAttributes) {
         try {
             teacherService.createTeacher(request);
-            redirectAttributes.addFlashAttribute("successMessage", "Colleague faculty member successfully added.");
+            redirectAttributes.addFlashAttribute("successMessage", "Faculty member successfully added.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to add faculty: " + e.getMessage());
         }

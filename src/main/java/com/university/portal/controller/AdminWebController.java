@@ -3,7 +3,10 @@ package com.university.portal.controller;
 import com.university.portal.dto.AdminRequest;
 import com.university.portal.dto.StudentRequest;
 import com.university.portal.dto.TeacherRequest;
+import com.university.portal.entity.Admin;
+import com.university.portal.repository.AdminRepository;
 import com.university.portal.service.AdminService;
+import com.university.portal.service.NoticeService;
 import com.university.portal.service.StudentService;
 import com.university.portal.service.TeacherService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,31 +24,85 @@ public class AdminWebController {
     private final AdminService adminService;
     private final TeacherService teacherService;
     private final StudentService studentService;
+    private final NoticeService noticeService;
+    private final AdminRepository adminRepository;
 
     public AdminWebController(AdminService adminService,
                               TeacherService teacherService,
-                              StudentService studentService) {
+                              StudentService studentService,
+                              NoticeService noticeService,
+                              AdminRepository adminRepository) {
         this.adminService = adminService;
         this.teacherService = teacherService;
         this.studentService = studentService;
+        this.noticeService = noticeService;
+        this.adminRepository = adminRepository;
     }
 
     @GetMapping("/dashboard")
     public String dashboard(@RequestParam(value = "tab", defaultValue = "overview") String activeTab,
                             Authentication authentication,
                             Model model) {
-        model.addAttribute("adminUser", authentication.getName());
+        String username = authentication.getName();
+        Admin currentAdmin = adminRepository.findByUserUsername(username).orElse(null);
+
+        model.addAttribute("adminUser", username);
+        model.addAttribute("currentAdmin", currentAdmin);
         model.addAttribute("activeTab", activeTab);
 
         model.addAttribute("admins", adminService.getAllAdmins());
         model.addAttribute("teachers", teacherService.getAllTeachers());
         model.addAttribute("students", studentService.getAllStudents());
+        model.addAttribute("notices", noticeService.getAllNotices());
 
         model.addAttribute("totalAdmins", adminService.getAllAdmins().size());
         model.addAttribute("totalTeachers", teacherService.getAllTeachers().size());
         model.addAttribute("totalStudents", studentService.getAllStudents().size());
+        model.addAttribute("totalNotices", noticeService.getAllNotices().size());
 
         return "admin/dashboard";
+    }
+
+    // --- Notice Management Actions ---
+    @PostMapping("/notices/create")
+    public String createNotice(@RequestParam("title") String title,
+                               @RequestParam("category") String category,
+                               @RequestParam("content") String content,
+                               Authentication authentication,
+                               RedirectAttributes redirectAttributes) {
+        try {
+            String username = authentication.getName();
+            Admin admin = adminRepository.findByUserUsername(username).orElse(null);
+            String authorName = (admin != null) ? admin.getFullName() : "Office of the Registrar";
+
+            noticeService.createNotice(title.trim(), content.trim(), category, authorName, "ADMIN");
+            redirectAttributes.addFlashAttribute("successMessage", "Official campus notice published successfully.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to publish notice: " + e.getMessage());
+        }
+        return "redirect:/admin/dashboard?tab=notices";
+    }
+
+    @PostMapping("/notices/delete/{id}")
+    public String deleteNotice(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            noticeService.deleteNotice(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Notice deleted.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete notice: " + e.getMessage());
+        }
+        return "redirect:/admin/dashboard?tab=notices";
+    }
+
+    @PostMapping("/notices/comments/delete/{commentId}")
+    public String deleteComment(@PathVariable Long commentId, RedirectAttributes redirectAttributes) {
+        try {
+            noticeService.deleteComment(commentId);
+            redirectAttributes.addFlashAttribute("successMessage", "Inappropriate comment removed.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to remove comment: " + e.getMessage());
+        }
+        return "redirect:/admin/dashboard?tab=notices";
     }
 
     // --- Student Management Actions ---
@@ -98,7 +155,7 @@ public class AdminWebController {
     public String editTeacher(@PathVariable Long id, @ModelAttribute TeacherRequest request, RedirectAttributes redirectAttributes) {
         try {
             teacherService.updateTeacher(id, request);
-            redirectAttributes.addFlashAttribute("successMessage", "Faculty record successfully updated.");
+            redirectAttributes.addFlashAttribute("successMessage", "Faculty member successfully updated.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to update faculty: " + e.getMessage());
         }
@@ -109,7 +166,7 @@ public class AdminWebController {
     public String deleteTeacher(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             teacherService.deleteTeacher(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Faculty record removed.");
+            redirectAttributes.addFlashAttribute("successMessage", "Faculty member removed.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete faculty: " + e.getMessage());
         }
@@ -121,9 +178,9 @@ public class AdminWebController {
     public String createAdmin(@ModelAttribute AdminRequest request, RedirectAttributes redirectAttributes) {
         try {
             adminService.createAdmin(request);
-            redirectAttributes.addFlashAttribute("successMessage", "Administrator successfully created.");
+            redirectAttributes.addFlashAttribute("successMessage", "Administrator account created.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Failed to add administrator: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to create administrator: " + e.getMessage());
         }
         return "redirect:/admin/dashboard?tab=admins";
     }
@@ -132,7 +189,7 @@ public class AdminWebController {
     public String editAdmin(@PathVariable Long id, @ModelAttribute AdminRequest request, RedirectAttributes redirectAttributes) {
         try {
             adminService.updateAdmin(id, request);
-            redirectAttributes.addFlashAttribute("successMessage", "Administrator record updated.");
+            redirectAttributes.addFlashAttribute("successMessage", "Administrator account updated.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to update administrator: " + e.getMessage());
         }
@@ -143,7 +200,7 @@ public class AdminWebController {
     public String deleteAdmin(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             adminService.deleteAdmin(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Administrator record removed.");
+            redirectAttributes.addFlashAttribute("successMessage", "Administrator account removed.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete administrator: " + e.getMessage());
         }

@@ -24,15 +24,38 @@ A robust, secure University Management System RESTful web application built with
 
 ---
 
-## 👥 Pre-seeded Default Accounts
+## 👥 Pre-seeded Authentic University Accounts
 
-On startup, `DataInitializer` seeds default accounts so the system is immediately testable:
+On startup, `DataInitializer` seeds a single central administration officer and realistic departmental faculty and student cohorts:
 
-| Role | Username | Password | Email | Full Name | Associated Resource ID |
+### 🛡️ Administrator (Single Admin Account)
+| Username | Password | Full Name | Department / Office | Code |
+| :--- | :--- | :--- | :--- | :--- |
+| `admin` | `admin123` | Dr. Robert Vance | Office of the Registrar | `ADM-001` |
+
+### 👨‍🏫 Faculty (Demo Teachers)
+| Username | Password | Full Name | Department | Designation | Code |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Admin** | `admin` | `admin123` | `admin@university.edu` | System Administrator | `ADM-001` |
-| **Teacher** | `teacher` | `teacher123` | `teacher@university.edu` | Dr. Alan Turing | `T-101` |
-| **Student** | `student` | `student123` | `student@university.edu` | Ada Lovelace | `STU-2024-001` |
+| `teacher` | `teacher123` | Dr. Alan Turing | Computer Science & Engineering | Professor | `T-101` |
+| `margaret` | `teacher123` | Prof. Margaret Hamilton | Software Engineering | Associate Professor | `T-102` |
+| `knuth` | `teacher123` | Dr. Donald Knuth | Computer Science | Professor | `T-103` |
+| `hopper` | `teacher123` | Dr. Grace Hopper | Information Technology | Assistant Professor | `T-104` |
+
+### 👨‍🎓 Enrolled Students (Demo Students)
+| Username | Password | Full Name | Department | Semester | CGPA | Student ID |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `student` | `student123` | Ada Lovelace | Computer Science & Engineering | 4th Semester | 3.95 | `STU-2024-001` |
+| `alankay` | `student123` | Alan Kay | Software Engineering | 6th Semester | 3.82 | `STU-2023-014` |
+| `shannon` | `student123` | Claude Shannon | Electrical & Electronic Eng. | 5th Semester | 3.91 | `STU-2023-088` |
+| `barbara` | `student123` | Barbara Liskov | Computer Science | 3rd Semester | 3.88 | `STU-2024-042` |
+| `linus` | `student123` | Linus Torvalds | Computer Systems | 7th Semester | 3.75 | `STU-2022-019` |
+
+---
+
+## 📢 Interactive Campus Notice Board & Discussion Thread
+- **Teachers**: Can publish new circulars (Examination, Academic, General) and reply directly to student inquiries.
+- **Students**: Can view all announcements and post comments or questions under any notice (cannot modify/delete notices).
+- **Admins**: Can publish official campus-wide circulars, delete notices, and moderate comments.
 
 ---
 

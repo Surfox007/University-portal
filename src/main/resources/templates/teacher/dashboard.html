@@ -8,170 +8,320 @@
 </head>
 <body>
 
-  <!-- Top Institutional Header -->
+  <!-- Top Academic Navigation Bar -->
   <header class="portal-header">
     <div class="portal-header-top">
       <div class="portal-brand">
         <div class="portal-seal">🎓</div>
         <div>
           <div class="portal-name">METROPOLITAN UNIVERSITY</div>
-          <div class="portal-sub">Faculty &amp; Academic Staff Portal</div>
+          <div class="portal-sub">Faculty &amp; Departmental Information System</div>
         </div>
       </div>
-      <div class="portal-user-meta">
-        <span class="user-tag">
-          Instructor: <strong th:text="${currentTeacher != null ? currentTeacher.fullName : username}">Dr. Alan Turing</strong>
-          <span class="badge-role badge-role-teacher">ROLE_TEACHER</span>
-        </span>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-          <button type="submit" class="btn btn-outline btn-sm" style="color:#ffffff; border-color:rgba(255,255,255,0.3); background:transparent;">Sign Out</button>
+
+      <div class="user-profile-badge">
+        <div class="user-avatar" th:text="${currentTeacher != null ? #strings.substring(currentTeacher.fullName, 0, 1) : 'T'}">T</div>
+        <div class="user-meta">
+          <div class="user-name" th:text="${currentTeacher != null ? currentTeacher.fullName : username}">Dr. Alan Turing</div>
+          <div class="user-role-text">
+            <span class="badge-role badge-role-teacher">Faculty Member</span>
+            <span style="color: #BFDBFE; font-size:0.75rem;" th:if="${currentTeacher != null}" th:text="'(' + ${currentTeacher.teacherCode} + ')'">(T-101)</span>
+          </div>
+        </div>
+        <form th:action="@{/logout}" method="post" style="display:inline; margin-left: 12px;">
+          <button type="submit" class="btn btn-outline btn-sm" style="border-color: rgba(255,255,255,0.4); color:#FFFFFF;">Logout</button>
         </form>
       </div>
     </div>
+
+    <nav class="portal-nav">
+      <div class="portal-nav-inner">
+        <a href="#profile" class="nav-link active">Faculty Profile</a>
+        <a href="#notices" class="nav-link">Notice Board &amp; Announcements</a>
+        <a href="#teaching" class="nav-link">Assigned Courses</a>
+        <a href="#colleagues" class="nav-link">Department Faculty</a>
+      </div>
+    </nav>
   </header>
 
-  <!-- Secondary Nav -->
-  <nav class="portal-nav">
-    <div class="portal-nav-inner">
-      <div class="nav-links">
-        <a href="#profile" class="nav-link active">👤 My Faculty Profile</a>
-        <a href="#facultyDirectory" class="nav-link">👥 Faculty Directory</a>
-        <a href="#clearancePolicy" class="nav-link">🔒 RBAC Clearance Notice</a>
-      </div>
-      <div style="font-size: 0.8rem; color: var(--text-muted);">
-        Clearance Level: <strong>Faculty Resources Only</strong>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Main Container -->
   <main class="portal-container">
 
-    <!-- Flash Messages -->
+    <!-- Flash Feedback Messages -->
     <div th:if="${successMessage}" class="portal-alert portal-alert-success">
-      <span>✅</span>
-      <span th:text="${successMessage}">Operation completed successfully.</span>
+      <span>✓</span> <span th:text="${successMessage}">Operation completed successfully.</span>
     </div>
     <div th:if="${errorMessage}" class="portal-alert portal-alert-danger">
-      <span>⚠️</span>
-      <span th:text="${errorMessage}">An error occurred.</span>
+      <span>⚠️</span> <span th:text="${errorMessage}">An error occurred.</span>
     </div>
 
-    <!-- Page Title -->
-    <div class="page-header">
+    <!-- 1. FACULTY PROFILE HEADER -->
+    <section id="profile" class="page-header">
       <div class="breadcrumb">
-        <span>Academic Portal</span> &rsaquo; <span>Faculty Workspace</span>
+        <span>Home</span> &rsaquo; <span>Faculty Portal</span> &rsaquo; <span>Academic Profile</span>
       </div>
-      <h1 class="page-title">Faculty Member Workspace</h1>
-      <p class="page-desc">Departmental faculty overview, directory maintenance, and academic staff resources.</p>
-    </div>
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h1 class="page-title" th:text="'Welcome, ' + ${currentTeacher != null ? currentTeacher.fullName : username}">Welcome, Faculty Member</h1>
+          <p class="page-desc">Academic Year 2025-2026 &bull; Department of Computer Science &amp; Engineering</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-primary" onclick="openModal('createNoticeModal')">+ Post Student Notice</button>
+          <button th:if="${currentTeacher != null}" class="btn btn-outline"
+                  th:data-id="${currentTeacher.id}"
+                  th:data-code="${currentTeacher.teacherCode}"
+                  th:data-name="${currentTeacher.fullName}"
+                  th:data-email="${currentTeacher.email}"
+                  th:data-dept="${currentTeacher.department}"
+                  th:data-desig="${currentTeacher.designation}"
+                  th:data-phone="${currentTeacher.phoneNumber}"
+                  onclick="openEditTeacherModalFromData(this)">
+            Edit Profile
+          </button>
+        </div>
+      </div>
+    </section>
 
-    <!-- Instructor Profile Card -->
-    <div class="card" id="profile" style="border-left: 4px solid var(--accent-blue);">
-      <div class="card-header">
-        <h3 class="card-title">Instructor Credentials &amp; Affiliation</h3>
-        <span class="badge-role badge-role-teacher">ACTIVE FACULTY</span>
+    <!-- Faculty Member Profile Card -->
+    <div class="card" style="margin-bottom: 28px;" th:if="${currentTeacher != null}">
+      <div class="card-header" style="background:#F8FAFC;">
+        <h3 class="card-title">Academic &amp; Departmental Information</h3>
+        <span class="badge-role badge-role-teacher" th:text="${currentTeacher.designation}">Professor</span>
       </div>
       <div class="card-body">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
           <div>
-            <div class="stat-label">Faculty Code</div>
-            <div style="font-size: 1.15rem; font-weight: 700; color: var(--primary-navy); margin-top: 4px;">
-              <span class="code-tag" th:text="${currentTeacher != null ? currentTeacher.teacherCode : 'T-101'}">T-101</span>
-            </div>
+            <div style="font-size:0.78rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Faculty Code</div>
+            <div style="font-size:1.15rem; font-weight:700; color:var(--primary-navy);" th:text="${currentTeacher.teacherCode}">T-101</div>
           </div>
           <div>
-            <div class="stat-label">Full Name</div>
-            <div style="font-size: 1.1rem; font-weight: 600; color: var(--text-main); margin-top: 4px;"
-                 th:text="${currentTeacher != null ? currentTeacher.fullName : username}">Dr. Alan Turing</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Department</div>
+            <div style="font-size:1rem; font-weight:600; color:var(--text-main);" th:text="${currentTeacher.department}">Computer Science &amp; Engineering</div>
           </div>
           <div>
-            <div class="stat-label">Department</div>
-            <div style="font-size: 1rem; color: var(--text-main); margin-top: 4px;"
-                 th:text="${currentTeacher != null ? currentTeacher.department : 'Computer Science & Engineering'}">Computer Science</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Designation</div>
+            <div style="font-size:1rem; font-weight:600; color:var(--text-main);" th:text="${currentTeacher.designation}">Professor</div>
           </div>
           <div>
-            <div class="stat-label">Academic Designation</div>
-            <div style="font-size: 1rem; color: var(--accent-blue); font-weight: 600; margin-top: 4px;"
-                 th:text="${currentTeacher != null ? currentTeacher.designation : 'Professor'}">Professor</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Institutional Email</div>
+            <div style="font-size:0.95rem; color:var(--text-main);" th:text="${currentTeacher.email}">teacher@university.edu</div>
           </div>
           <div>
-            <div class="stat-label">Official Email</div>
-            <div style="font-size: 0.95rem; color: var(--text-main); margin-top: 4px;"
-                 th:text="${currentTeacher != null ? currentTeacher.email : 'teacher@university.edu'}">teacher@university.edu</div>
-          </div>
-          <div>
-            <div class="stat-label">Phone Contact</div>
-            <div style="font-size: 0.95rem; color: var(--text-main); margin-top: 4px;"
-                 th:text="${currentTeacher != null && currentTeacher.phoneNumber != null ? currentTeacher.phoneNumber : '+1-555-0102'}">+1-555-0102</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Department Extension</div>
+            <div style="font-size:0.95rem; color:var(--text-main);" th:text="${currentTeacher.phoneNumber != null ? currentTeacher.phoneNumber : 'Office Desk Ext. 402'}">+1-555-0101</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- RBAC Clearance Notice -->
-    <div class="portal-alert portal-alert-info" id="clearancePolicy">
-      <span style="font-size: 1.2rem;">ℹ️</span>
-      <div>
-        <strong>Role-Based Access Control Policy (CSE 3230 Lab):</strong>
-        <p style="font-size: 0.85rem; margin-top: 2px;">
-          As an authenticated Teacher, you are authorized to manage <strong>Faculty (Teacher) resources only</strong>. You are restricted from accessing or modifying Administrator or Student directories.
-        </p>
+    <!-- 2. NOTICE BOARD & ANNOUNCEMENTS -->
+    <section id="notices" style="margin-bottom: 36px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+        <div>
+          <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--primary-navy);">📢 Campus Notices &amp; Student Inquiries</h2>
+          <p style="font-size: 0.88rem; color: var(--text-muted);">Publish announcements to students, view student questions, and provide official replies.</p>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openModal('createNoticeModal')">+ Publish Notice</button>
       </div>
-    </div>
 
-    <!-- Faculty Colleagues Management Table -->
-    <div class="card" id="facultyDirectory">
-      <div class="card-header">
-        <h3 class="card-title">Department Faculty Directory (<span th:text="${#lists.size(teachers)}">0</span>)</h3>
-        <button class="btn btn-primary btn-sm" onclick="openModal('addTeacherModal')">+ Register Faculty Colleague</button>
+      <div th:if="${#lists.isEmpty(notices)}" class="card" style="padding: 32px; text-align: center; color: var(--text-muted);">
+        No notices published currently. Click "+ Publish Notice" to post the first circular.
       </div>
-      <div class="table-responsive">
-        <table class="portal-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Teacher Code</th>
-              <th>Full Name</th>
-              <th>Email</th>
-              <th>Department</th>
-              <th>Designation</th>
-              <th>Phone</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr th:each="t : ${teachers}">
-              <td th:text="${t.id}">1</td>
-              <td><span class="code-tag" th:text="${t.teacherCode}">T-101</span></td>
-              <td><strong th:text="${t.fullName}">Dr. Alan Turing</strong></td>
-              <td th:text="${t.email}">teacher@university.edu</td>
-              <td th:text="${t.department}">Computer Science</td>
-              <td><span class="badge-role badge-role-teacher" th:text="${t.designation}">Professor</span></td>
-              <td th:text="${t.phoneNumber != null ? t.phoneNumber : 'N/A'}">+1-555</td>
-              <td>
-                <div style="display:flex; gap:6px;">
-                  <button type="button" class="btn btn-outline btn-sm"
-                          th:data-id="${t.id}"
-                          th:data-code="${t.teacherCode}"
-                          th:data-name="${t.fullName}"
-                          th:data-email="${t.email}"
-                          th:data-dept="${t.department}"
-                          th:data-desig="${t.designation}"
-                          th:data-phone="${t.phoneNumber}"
-                          onclick="openEditTeacherModalFromData(this)">Edit</button>
-                  <form th:action="@{'/teacher/teachers/delete/' + ${t.id}}" method="post" onsubmit="return confirm('Remove faculty record?');" style="display:inline;">
-                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                  </form>
+
+      <!-- Notice Cards Loop -->
+      <div th:each="n : ${notices}" class="notice-card"
+           th:classappend="${n.category == 'Examination' ? 'cat-examination' : (n.category == 'Academic' ? 'cat-academic' : 'cat-general')}"
+           th:id="'notice-' + ${n.id}">
+        
+        <div class="notice-header">
+          <div>
+            <div class="notice-title" th:text="${n.title}">Notice Headline</div>
+            <div class="notice-meta">
+              <span><strong>Author:</strong> <span th:text="${n.authorName}">Dr. Alan Turing</span> (<span th:text="${n.authorRole}">TEACHER</span>)</span>
+              <span>&bull;</span>
+              <span th:text="${#temporals.format(n.postedAt, 'MMMM d, yyyy - hh:mm a')}">October 25, 2026</span>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="notice-tag"
+                  th:classappend="${n.category == 'Examination' ? 'tag-exam' : (n.category == 'Academic' ? 'tag-academic' : 'tag-general')}"
+                  th:text="${n.category}">General</span>
+            <form th:action="@{'/teacher/notices/delete/' + ${n.id}}" method="post" onsubmit="return confirm('Delete this notice?');" style="display:inline;">
+              <button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger); border-color:#FECACA;">Delete Notice</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="notice-body">
+          <p th:text="${n.content}">Notice description details...</p>
+        </div>
+
+        <!-- Comments & Inquiries Section -->
+        <div class="notice-comments-wrap">
+          <div class="notice-comments-title">
+            <span>💬 Discussion &amp; Student Questions</span>
+            <span th:text="'(' + ${#lists.size(n.comments)} + ')'">(0)</span>
+          </div>
+
+          <!-- Existing Comments Thread -->
+          <div class="comment-list" th:if="${not #lists.isEmpty(n.comments)}">
+            <div th:each="c : ${n.comments}" class="comment-bubble">
+              <div class="comment-meta">
+                <div class="comment-author">
+                  <span th:text="${c.authorName}">Ada Lovelace</span>
+                  <span class="badge-role"
+                        th:classappend="${c.authorRole == 'TEACHER' ? 'badge-role-teacher' : (c.authorRole == 'ADMIN' ? 'badge-role-admin' : 'badge-role-student')}"
+                        th:text="${c.authorRole}">STUDENT</span>
                 </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                <div class="comment-time" th:text="${#temporals.format(c.commentedAt, 'MMM d, h:mm a')}">Oct 25, 8:40 AM</div>
+              </div>
+              <div class="comment-text" th:text="${c.content}">Comment inquiry text...</div>
+            </div>
+          </div>
+
+          <!-- Faculty Reply Form -->
+          <form th:action="@{'/teacher/notices/' + ${n.id} + '/comment'}" method="post">
+            <div class="comment-input-box">
+              <input type="text" name="content" class="comment-input" placeholder="Type an official faculty response or note..." required>
+              <button type="submit" class="btn btn-navy btn-sm" style="white-space:nowrap;">Reply as Faculty</button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </section>
+
+    <!-- 3. ASSIGNED COURSES & SCHEDULE -->
+    <section id="teaching" style="margin-bottom: 36px;">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Assigned Teaching Schedule (Spring 2026)</h3>
+          <span style="font-size:0.85rem; color:var(--text-muted);">Weekly Lecture Hours: <strong>6.0 Hours</strong></span>
+        </div>
+        <div class="table-responsive">
+          <table class="portal-table">
+            <thead>
+              <tr>
+                <th>Course Code</th>
+                <th>Course Title</th>
+                <th>Enrolled Students</th>
+                <th>Classroom</th>
+                <th>Lecture Schedule</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="code-tag">CSE 3201</span></td>
+                <td><strong>Operating Systems &amp; System Programming</strong></td>
+                <td>48 Students</td>
+                <td>Lecture Hall B-402</td>
+                <td>Sun, Tue &bull; 09:30 - 11:00 AM</td>
+                <td><span class="badge-role badge-role-teacher">In Progress</span></td>
+              </tr>
+              <tr>
+                <td><span class="code-tag">CSE 4105</span></td>
+                <td><strong>Theory of Computation &amp; Automata</strong></td>
+                <td>36 Students</td>
+                <td>Auditorium 1</td>
+                <td>Mon, Wed &bull; 02:00 - 03:30 PM</td>
+                <td><span class="badge-role badge-role-teacher">In Progress</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. DEPARTMENT FACULTY COLLEAGUES DIRECTORY -->
+    <section id="colleagues">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">Department Faculty Directory (<span th:text="${#lists.size(teachers)}">0</span>)</h3>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-top:2px;">Academic staff in Computer Science &amp; related faculties</p>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="openModal('addTeacherModal')">+ Register New Colleague</button>
+        </div>
+        <div class="table-responsive">
+          <table class="portal-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Teacher Code</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Department</th>
+                <th>Designation</th>
+                <th>Phone</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="t : ${teachers}">
+                <td th:text="${t.id}">1</td>
+                <td><span class="code-tag" th:text="${t.teacherCode}">T-101</span></td>
+                <td><strong th:text="${t.fullName}">Dr. Alan Turing</strong></td>
+                <td th:text="${t.email}">teacher@university.edu</td>
+                <td th:text="${t.department}">Computer Science</td>
+                <td><span class="badge-role badge-role-teacher" th:text="${t.designation}">Professor</span></td>
+                <td th:text="${t.phoneNumber != null ? t.phoneNumber : 'N/A'}">+1-555</td>
+                <td>
+                  <div style="display:flex; gap:6px;">
+                    <button type="button" class="btn btn-outline btn-sm"
+                            th:data-id="${t.id}"
+                            th:data-code="${t.teacherCode}"
+                            th:data-name="${t.fullName}"
+                            th:data-email="${t.email}"
+                            th:data-dept="${t.department}"
+                            th:data-desig="${t.designation}"
+                            th:data-phone="${t.phoneNumber}"
+                            onclick="openEditTeacherModalFromData(this)">Edit</button>
+                    <form th:action="@{'/teacher/teachers/delete/' + ${t.id}}" method="post" onsubmit="return confirm('Remove faculty record?');" style="display:inline;">
+                      <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
   </main>
+
+  <!-- Create Notice Modal -->
+  <div id="createNoticeModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Publish Student Notice</h3>
+        <button class="modal-close" onclick="closeModal('createNoticeModal')">&times;</button>
+      </div>
+      <form th:action="@{/teacher/notices/create}" method="post">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Notice Headline / Title</label>
+            <input type="text" name="title" class="form-input" placeholder="e.g. Midterm Makeup Exam Schedule" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Notice Category</label>
+            <select name="category" class="form-input" required>
+              <option value="Academic">Academic Notice</option>
+              <option value="Examination">Examination Announcement</option>
+              <option value="General">General Campus Announcement</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Notice Details &amp; Instructions</label>
+            <textarea name="content" class="form-input" rows="5" placeholder="Enter clear instructions for students..." required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('createNoticeModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Publish to Students</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- Add Faculty Modal -->
   <div id="addTeacherModal" class="modal-overlay">
@@ -208,7 +358,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">Phone Number</label>
-            <input type="text" name="phoneNumber" class="form-input" placeholder="+1-555-0155">
+            <input type="text" name="phoneNumber" class="form-input" placeholder="+1-555-0188">
           </div>
           <div class="form-grid-2">
             <div class="form-group">
@@ -223,7 +373,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" onclick="closeModal('addTeacherModal')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Faculty Record</button>
+          <button type="submit" class="btn btn-primary">Save Colleague Record</button>
         </div>
       </form>
     </div>
@@ -233,7 +383,7 @@
   <div id="editTeacherModal" class="modal-overlay">
     <div class="modal-dialog">
       <div class="modal-header">
-        <h3>Edit Faculty Member</h3>
+        <h3>Edit Faculty Record</h3>
         <button class="modal-close" onclick="closeModal('editTeacherModal')">&times;</button>
       </div>
       <form id="editTeacherForm" method="post">
@@ -276,7 +426,7 @@
   </div>
 
   <footer class="portal-footer">
-    &copy; 2026 Metropolitan University &bull; Academic Management Information System (AMIS) &bull; Faculty Portal
+    &copy; 2026 Metropolitan University &bull; Academic Management Information System &bull; Faculty Portal
   </footer>
 
   <script>
