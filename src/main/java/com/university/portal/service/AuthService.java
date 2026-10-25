@@ -10,7 +10,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthService {
@@ -18,13 +20,16 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public AuthService(AuthenticationManager authenticationManager,
                        JwtTokenProvider tokenProvider,
-                       UserRepository userRepository) {
+                       UserRepository userRepository,
+                       PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public LoginResponse login(LoginRequest loginRequest) {
@@ -53,5 +58,25 @@ public class AuthService {
     public User getCurrentUser(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
+    }
+
+    @Transactional
+    public void changePassword(String username, String currentPassword, String newPassword, String confirmPassword) {
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new IllegalArgumentException("New password must be at least 6 characters long.");
+        }
+        if (!newPassword.equals(confirmPassword)) {
+            throw new IllegalArgumentException("New password and confirmation password do not match.");
+        }
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User account not found: " + username));
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new IllegalArgumentException("Current password does not match our records.");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 }

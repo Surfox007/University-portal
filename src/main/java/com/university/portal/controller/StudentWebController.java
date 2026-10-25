@@ -3,6 +3,7 @@ package com.university.portal.controller;
 import com.university.portal.dto.StudentRequest;
 import com.university.portal.entity.Student;
 import com.university.portal.repository.StudentRepository;
+import com.university.portal.service.AuthService;
 import com.university.portal.service.NoticeService;
 import com.university.portal.service.StudentService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,13 +21,16 @@ public class StudentWebController {
     private final StudentService studentService;
     private final StudentRepository studentRepository;
     private final NoticeService noticeService;
+    private final AuthService authService;
 
     public StudentWebController(StudentService studentService,
                                 StudentRepository studentRepository,
-                                NoticeService noticeService) {
+                                NoticeService noticeService,
+                                AuthService authService) {
         this.studentService = studentService;
         this.studentRepository = studentRepository;
         this.noticeService = noticeService;
+        this.authService = authService;
     }
 
     @GetMapping("/dashboard")
@@ -40,6 +44,21 @@ public class StudentWebController {
         model.addAttribute("notices", noticeService.getAllNotices());
 
         return "student/dashboard";
+    }
+
+    @PostMapping("/change-password")
+    public String changePassword(@RequestParam("currentPassword") String currentPassword,
+                                 @RequestParam("newPassword") String newPassword,
+                                 @RequestParam("confirmPassword") String confirmPassword,
+                                 Authentication authentication,
+                                 RedirectAttributes redirectAttributes) {
+        try {
+            authService.changePassword(authentication.getName(), currentPassword, newPassword, confirmPassword);
+            redirectAttributes.addFlashAttribute("successMessage", "Password successfully updated! Please remember your new password.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/student/dashboard";
     }
 
     @PostMapping("/notices/{id}/comment")

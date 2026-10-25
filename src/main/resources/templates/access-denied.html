@@ -18,11 +18,20 @@
           <div class="portal-sub">Central Security &amp; Access Control</div>
         </div>
       </div>
-      <div class="portal-user-meta">
-        <span class="user-tag" th:if="${username}">Logged in as: <strong th:text="${username}">user</strong></span>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-          <button type="submit" class="btn btn-outline btn-sm" style="color:#ffffff; border-color:rgba(255,255,255,0.3); background:transparent;">Sign Out</button>
-        </form>
+      <div class="user-profile-badge">
+        <div class="user-meta">
+          <div class="user-name" th:text="${username}">user</div>
+          <div class="user-credentials-line">
+            <span class="user-username-tag" th:text="'@' + ${username}">@user</span>
+          </div>
+        </div>
+        <div class="user-actions">
+          <form th:action="@{/logout}" method="post" style="display:inline; margin:0;">
+            <button type="submit" class="btn-header-action btn-header-signout">
+              Sign Out &rarr;
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </header>

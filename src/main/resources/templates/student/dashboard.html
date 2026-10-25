@@ -23,14 +23,22 @@
         <div class="user-avatar" th:text="${currentStudent != null ? #strings.substring(currentStudent.fullName, 0, 1) : 'S'}">S</div>
         <div class="user-meta">
           <div class="user-name" th:text="${currentStudent != null ? currentStudent.fullName : username}">Ada Lovelace</div>
-          <div class="user-role-text">
+          <div class="user-credentials-line">
+            <span class="user-username-tag" th:text="'@' + ${username}">@student</span>
             <span class="badge-role badge-role-student">Student</span>
-            <span style="color: #BFDBFE; font-size:0.75rem;" th:if="${currentStudent != null}" th:text="'(' + ${currentStudent.studentId} + ')'">(STU-2024-001)</span>
+            <span style="color: #BFDBFE; font-size:0.74rem;" th:if="${currentStudent != null}" th:text="'(' + ${currentStudent.studentId} + ')'">(STU-2024-001)</span>
           </div>
         </div>
-        <form th:action="@{/logout}" method="post" style="display:inline; margin-left: 12px;">
-          <button type="submit" class="btn btn-outline btn-sm" style="border-color: rgba(255,255,255,0.4); color:#FFFFFF;">Logout</button>
-        </form>
+        <div class="user-actions">
+          <button type="button" class="btn-header-action btn-header-password" onclick="openModal('changePasswordModal')">
+            🔑 Change Password
+          </button>
+          <form th:action="@{/logout}" method="post" style="display:inline; margin:0;">
+            <button type="submit" class="btn-header-action btn-header-signout">
+              Sign Out &rarr;
+            </button>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -422,6 +430,37 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" onclick="closeModal('editStudentModal')">Cancel</button>
           <button type="submit" class="btn btn-primary">Update Record</button>
+        </div>
+      </form>
+    </div>
+  <!-- Change Password Modal -->
+  <div id="changePasswordModal" class="modal-overlay">
+    <div class="modal-dialog" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3>Change Account Password</h3>
+        <button class="modal-close" onclick="closeModal('changePasswordModal')">&times;</button>
+      </div>
+      <form th:action="@{/student/change-password}" method="post">
+        <div class="modal-body">
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
+            Signed in as <strong th:text="'@' + ${username}">@student</strong>. Enter your current password and choose a new secure password (minimum 6 characters).
+          </p>
+          <div class="form-group">
+            <label class="form-label">Current Password</label>
+            <input type="password" name="currentPassword" class="form-input" placeholder="Enter current password" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">New Password</label>
+            <input type="password" name="newPassword" class="form-input" placeholder="At least 6 characters" minlength="6" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm New Password</label>
+            <input type="password" name="confirmPassword" class="form-input" placeholder="Re-enter new password" minlength="6" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('changePasswordModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Password</button>
         </div>
       </form>
     </div>

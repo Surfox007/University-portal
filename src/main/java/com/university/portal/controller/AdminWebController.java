@@ -6,6 +6,7 @@ import com.university.portal.dto.TeacherRequest;
 import com.university.portal.entity.Admin;
 import com.university.portal.repository.AdminRepository;
 import com.university.portal.service.AdminService;
+import com.university.portal.service.AuthService;
 import com.university.portal.service.NoticeService;
 import com.university.portal.service.StudentService;
 import com.university.portal.service.TeacherService;
@@ -26,17 +27,20 @@ public class AdminWebController {
     private final StudentService studentService;
     private final NoticeService noticeService;
     private final AdminRepository adminRepository;
+    private final AuthService authService;
 
     public AdminWebController(AdminService adminService,
                               TeacherService teacherService,
                               StudentService studentService,
                               NoticeService noticeService,
-                              AdminRepository adminRepository) {
+                              AdminRepository adminRepository,
+                              AuthService authService) {
         this.adminService = adminService;
         this.teacherService = teacherService;
         this.studentService = studentService;
         this.noticeService = noticeService;
         this.adminRepository = adminRepository;
+        this.authService = authService;
     }
 
     @GetMapping("/dashboard")
@@ -61,6 +65,21 @@ public class AdminWebController {
         model.addAttribute("totalNotices", noticeService.getAllNotices().size());
 
         return "admin/dashboard";
+    }
+
+    @PostMapping("/change-password")
+    public String changePassword(@RequestParam("currentPassword") String currentPassword,
+                                 @RequestParam("newPassword") String newPassword,
+                                 @RequestParam("confirmPassword") String confirmPassword,
+                                 Authentication authentication,
+                                 RedirectAttributes redirectAttributes) {
+        try {
+            authService.changePassword(authentication.getName(), currentPassword, newPassword, confirmPassword);
+            redirectAttributes.addFlashAttribute("successMessage", "Password successfully updated! Please remember your new password.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/admin/dashboard";
     }
 
     // --- Notice Management Actions ---

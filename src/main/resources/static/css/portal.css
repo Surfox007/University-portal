@@ -114,6 +114,114 @@ body {
   gap: 16px;
 }
 
+/* User Profile Header Card & Controls */
+.user-profile-badge {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 6px 14px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+.user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #2563EB;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.05rem;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+}
+
+.user-avatar.admin-avatar {
+  background: #DC2626;
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.user-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  line-height: 1.2;
+}
+
+.user-credentials-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  flex-wrap: wrap;
+}
+
+.user-username-tag {
+  background: rgba(15, 43, 92, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-family: monospace;
+  font-weight: 600;
+  color: #93C5FD;
+  letter-spacing: 0.2px;
+}
+
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 6px;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  padding-left: 12px;
+}
+
+.btn-header-action {
+  padding: 6px 11px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.btn-header-password {
+  background: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.btn-header-password:hover {
+  background: rgba(255, 255, 255, 0.24);
+  border-color: #FFFFFF;
+}
+
+.btn-header-signout {
+  background: #EF4444;
+  color: #FFFFFF;
+  border: 1px solid #DC2626;
+}
+
+.btn-header-signout:hover {
+  background: #DC2626;
+}
+
 .user-tag {
   font-size: 0.85rem;
   color: #E2E8F0;
