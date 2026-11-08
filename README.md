@@ -115,7 +115,7 @@ The project includes an in-memory **H2 Database** profile enabled by default for
 
 ## 🧪 Running Automated Tests
 
-Run the full integration test suite verifying authentication, JWT creation, RBAC authorization, and CRUD operations:
+Run the unit and integration test suites verifying notice and password services, authentication, JWT creation, RBAC authorization, validation, and CRUD operations:
 
 ```bash
 # Linux / macOS
@@ -124,6 +124,8 @@ Run the full integration test suite verifying authentication, JWT creation, RBAC
 # Windows
 .\mvnw.cmd test
 ```
+
+GitHub Actions runs the same Maven test suite on pushes and pull requests targeting `main` or `master`.
 
 ---
 
