@@ -115,7 +115,7 @@ The project includes an in-memory **H2 Database** profile enabled by default for
 
 ## 🧪 Running Automated Tests
 
-Run the unit and integration test suites verifying notice and password services, authentication, JWT creation, RBAC authorization, validation, and CRUD operations:
+Run the test suite, which contains six service unit tests and one API integration test covering JWT login and the authenticated user profile:
 
 ```bash
 # Linux / macOS

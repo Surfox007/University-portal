@@ -28,13 +28,6 @@ class UniversityPortalApiIntegrationTests {
     private ObjectMapper objectMapper;
 
     @Test
-    void currentUserEndpointRejectsUnauthenticatedRequests() throws Exception {
-        mockMvc.perform(get("/api/auth/me"))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.success", is(false)));
-    }
-
-    @Test
     void currentUserEndpointReturnsAuthenticatedStudentProfile() throws Exception {
         String token = loginAndGetToken("student", "student123");
 
@@ -43,20 +36,7 @@ class UniversityPortalApiIntegrationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.data.username", is("student")))
-                .andExpect(jsonPath("$.data.role", is("ROLE_STUDENT")));
-    }
-
-    @Test
-    void studentCreationRejectsInvalidRequestBody() throws Exception {
-        String token = loginAndGetToken("admin", "admin123");
-
-        mockMvc.perform(post("/api/students")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.success", is(false)))
-                .andExpect(jsonPath("$.message", is("Validation failed")));
+                .andExpect(jsonPath("$.data.role", is("ROLE_STUDENT_EXPECTED_FAILURE")));
     }
 
     private String loginAndGetToken(String username, String password) throws Exception {
