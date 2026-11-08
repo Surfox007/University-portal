@@ -36,7 +36,7 @@ class UniversityPortalApiIntegrationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.data.username", is("student")))
-                .andExpect(jsonPath("$.data.role", is("ROLE_STUDENT_EXPECTED_FAILURE")));
+                .andExpect(jsonPath("$.data.role", is("ROLE_STUDENT")));
     }
 
     private String loginAndGetToken(String username, String password) throws Exception {
